@@ -1,0 +1,37 @@
+CREATE OR REPLACE QUERY similar_cases_fp(LIST<FLOAT> qv, INT k = 12) FOR GRAPH @GRAPH@ {
+  /* Behavioural similarity: closed cases whose episode fingerprint (channel mix,
+     amount shape, device novelty, proxy use, burst tempo, region novelty ...)
+     is closest to the current investigation. TigerVector HNSW search. */
+  MapAccum<VERTEX, FLOAT> @@dist;
+  R = vectorSearch({ClosedCase.fp}, qv, k, {distance_map: @@dist});
+  PRINT R[R.id, R.outcome, R.pattern, R.n_txns, R.exposure_usd, R.card_id, R.analyst_notes] AS cases;
+  PRINT @@dist AS distance;
+}
+
+CREATE OR REPLACE QUERY similar_cases_text(LIST<FLOAT> qv, INT k = 8) FOR GRAPH @GRAPH@ {
+  /* Narrative similarity over closed-case analyst notes. */
+  MapAccum<VERTEX, FLOAT> @@dist;
+  R = vectorSearch({ClosedCase.emb}, qv, k, {distance_map: @@dist});
+  PRINT R[R.id, R.outcome, R.pattern, R.n_txns, R.exposure_usd, R.card_id, R.analyst_notes] AS cases;
+  PRINT @@dist AS distance;
+}
+
+CREATE OR REPLACE QUERY search_knowledge(LIST<FLOAT> qv, INT k = 6) FOR GRAPH @GRAPH@ {
+  /* GraphRAG document side: policy rules, typologies, regulatory guidance. Each
+     hit comes back with the fraud patterns it is linked to in the graph. */
+  MapAccum<VERTEX, FLOAT> @@dist;
+  MapAccum<STRING, SetAccum<STRING>> @@patterns;
+  R = vectorSearch({DocChunk.emb}, qv, k, {distance_map: @@dist});
+  X = SELECT d FROM R:d -(DOC_PATTERN>:e)- Pattern:p ACCUM @@patterns += (d.id -> p.id);
+  PRINT R[R.id, R.source, R.section, R.text] AS chunks;
+  PRINT @@patterns AS linked_patterns;
+  PRINT @@dist AS distance;
+}
+
+CREATE OR REPLACE QUERY similar_agent_cases(LIST<FLOAT> qv, INT k = 5) FOR GRAPH @GRAPH@ {
+  /* The agent's own earlier investigations, by behavioural fingerprint. */
+  MapAccum<VERTEX, FLOAT> @@dist;
+  R = vectorSearch({InvestigationCase.fp}, qv, k, {distance_map: @@dist});
+  PRINT R[R.id, R.case_ref, R.verdict, R.pattern, R.fraud_probability, R.exposure_usd, R.summary] AS cases;
+  PRINT @@dist AS distance;
+}

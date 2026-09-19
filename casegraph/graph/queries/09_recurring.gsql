@@ -1,0 +1,23 @@
+CREATE OR REPLACE QUERY recurring_check(STRING holder_id, STRING card_id, STRING region, STRING product, DOUBLE amount,
+                                        DATETIME before_ts, DOUBLE tol = 0.02) FOR GRAPH @GRAPH@ SYNTAX V2 {
+  /* Policy R7: is a disputed charge one of the cardholder's own repeating
+     payments? Earlier charges within +/- tol of the amount, same product code,
+     same billing region, on the same holder (and, separately, the same card). */
+  TYPEDEF TUPLE<STRING id, DATETIME ts, DOUBLE amount, STRING channel> Hit;
+  HeapAccum<Hit>(40, ts ASC) @@holder_hits, @@card_hits;
+  DOUBLE lo, hi;
+  lo = amount * (1 - tol);
+  hi = amount * (1 + tol);
+
+  H = {Holder.*};
+  H = SELECT h FROM H:h WHERE h.id == holder_id;
+  X = SELECT t FROM H:h -(HOLDER_TXN>:e)- Transaction:t
+      WHERE t.ts < before_ts AND t.amount >= lo AND t.amount <= hi AND t.product == product
+      ACCUM @@holder_hits += Hit(t.id, t.ts, t.amount, t.channel);
+  C = {Card.*};
+  C = SELECT c FROM C:c WHERE c.id == card_id;
+  Y = SELECT t FROM C:c -(MADE>:e)- Transaction:t
+      WHERE t.ts < before_ts AND t.amount >= lo AND t.amount <= hi AND t.product == product AND t.addr1 == region
+      ACCUM @@card_hits += Hit(t.id, t.ts, t.amount, t.channel);
+  PRINT @@holder_hits AS holder_repeats, @@card_hits AS card_region_repeats;
+}

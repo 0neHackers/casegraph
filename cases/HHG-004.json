@@ -1,0 +1,130 @@
+{
+  "case_id": "HHG-004",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.04,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Customer confirmed the activity when asked (simulated reply; see evidence_requests)",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Customer states they did not make the purchase",
+        "source": "customer",
+        "ref": "trigger:customer_report",
+        "entity_ids": [
+          "C08106",
+          "3583227"
+        ]
+      },
+      {
+        "claim": "Identity record marks the device New for this account and it has never been seen on this cardholder or card",
+        "source": "graph",
+        "ref": "query:txn_context(txn_id=3583227)",
+        "entity_ids": [
+          "3583227",
+          "? | ? | firefox 47.0 | ?"
+        ]
+      },
+      {
+        "claim": "On C08106-K1, the shared device made 1 purchase(s) totalling $128.33; average case-memory score 0.00",
+        "source": "graph",
+        "ref": "query:card_window(card_id=C08106-K1)",
+        "entity_ids": [
+          "C08106-K1",
+          "3583227"
+        ]
+      },
+      {
+        "claim": "The card has 3 earlier confirmed-fraud case(s) (most recent CC-3778, card_not_present_fraud), none involving this cardholder's transactions",
+        "source": "graph",
+        "ref": "query:prior_cases(card_id=C08106-K1)",
+        "entity_ids": [
+          "CC-3778",
+          "CC-2121",
+          "CC-1736"
+        ]
+      },
+      {
+        "claim": "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3583227 at 0.00; the bank's risk score is 0.34. Both are inputs, not a verdict",
+        "source": "graph",
+        "ref": "attr:Transaction(3583227).model_prob,risk_score",
+        "entity_ids": [
+          "3583227"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-1288",
+      "CC-3924",
+      "CC-5294",
+      "CC-2531",
+      "CC-1353",
+      "CC-1287"
+    ],
+    "summary": "Customer C08106 initially reported a $128.33 online transaction (ID 3583227) on card C08106-K1 as unrecognized. The transaction was flagged due to the use of a new device profile (Firefox 47.0) and a risk score of 0.34. Upon further verification, the customer identified the transaction as a household purchase and withdrew the dispute. The case-memory model scored the transaction at 0.00, and no connected fraudulent activity was identified.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-004"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 9,
+      "assumed_response": "On review of the merchant and date, the customer recognises the purchase (a household/own purchase) and withdraws the dispute"
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R2 precondition: confirm the unauthorised use (card in possession, no household use) before blocking"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a: fraud probability >= 0.30 or evidence requested"
+      },
+      {
+        "action": "MONITOR_CARD",
+        "route": "auto",
+        "reason": "R1: keep the card active but watched while the dispute is verified"
+      }
+    ],
+    "final": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a: the customer disputed a charge, so a case records the outcome"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: customer confirmed the transaction"
+      }
+    ],
+    "what_changed": "The initial recommendation to monitor the card was updated to close the case as legitimate after the customer confirmed the transaction upon review."
+  },
+  "sar": {
+    "file": false,
+    "reason": "No report: fraud is not confirmed or strongly suspected (section 3a).",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Per policy section 6, no further action is required as the transaction was confirmed by the cardholder and no shared origin or coordinated abuse patterns were identified.",
+  "tool_calls": 13,
+  "tokens": 4678,
+  "latency_s": 17.9
+}

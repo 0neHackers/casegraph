@@ -1,0 +1,36 @@
+CREATE OR REPLACE QUERY region_context(STRING card_id, STRING region, DATETIME at_ts, INT window_h = 72) FOR GRAPH @GRAPH@ SYNTAX V2 {
+  /* Out-of-region questions. Has this card ever been used in this billing
+     region before the alert? Where does it normally transact (and is it still
+     transacting at home around the alert)? How many other cards were hit in
+     this region around the same time, and how did past cases in it end? */
+  MapAccum<STRING, SumAccum<INT>> @@home;
+  SumAccum<INT> @@prior_in_region, @@home_near_alert, @@region_cards_near, @@region_fraud_cases, @@region_cleared_cases;
+  MinAccum<DATETIME> @@first_in_region;
+  SetAccum<STRING> @@near_cards;
+  DATETIME lo, hi;
+  lo = datetime_sub(at_ts, INTERVAL window_h HOUR);
+  hi = datetime_add(at_ts, INTERVAL window_h HOUR);
+
+  C = {Card.*};
+  C = SELECT c FROM C:c WHERE c.id == card_id;
+  CT = SELECT t FROM C:c -(MADE>:e)- Transaction:t
+       ACCUM
+         IF t.ts < at_ts THEN
+           @@home += (t.addr1 -> 1),
+           IF t.addr1 == region THEN @@prior_in_region += 1, @@first_in_region += t.ts END
+         END,
+         IF t.ts >= lo AND t.ts <= hi AND t.addr1 != region THEN @@home_near_alert += 1 END;
+
+  R = {BillingRegion.*};
+  R = SELECT r FROM R:r WHERE r.id == region;
+  RT = SELECT t FROM R:r -(REGION_TXN>:e)- Transaction:t
+       WHERE t.ts >= lo AND t.ts <= hi AND t.channel == "in_person";
+  RC = SELECT c FROM RT:t -(MADE_BY>:e)- Card:c ACCUM @@near_cards += c.id;
+  CC = SELECT cc FROM R:r -(REGION_TXN>:e)- Transaction:t -(IN_CLOSED_CASE>:e2)- ClosedCase:cc
+       ACCUM IF cc.outcome == "confirmed_fraud" THEN @@region_fraud_cases += 1 ELSE @@region_cleared_cases += 1 END;
+
+  PRINT @@prior_in_region AS card_prior_txns_in_region, @@first_in_region AS card_first_seen_in_region,
+        @@home.size() AS card_n_regions_before, @@home AS card_regions_before,
+        @@home_near_alert AS card_txns_elsewhere_near_alert, @@near_cards.size() AS in_person_cards_in_region_near_alert,
+        @@region_fraud_cases AS region_closed_fraud_txns, @@region_cleared_cases AS region_closed_cleared_txns;
+}

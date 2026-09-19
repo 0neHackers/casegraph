@@ -1,0 +1,166 @@
+{
+  "case_id": "HHG-006",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.91,
+    "pattern": "undocumented",
+    "pattern_description": "The undocumented pattern consists of rapid-fire online transactions structured specifically to fall just below a round $500 authorization ceiling ($456.96 to $488.04) across a 30-minute window. It impacted card C07297-K1 by alternating between two previously unseen device profiles across billing regions 264 and 476. The pattern was identified after customer C07297 disputed transaction 3476682, mirroring undocumented behavior previously documented in case CC-3907.",
+    "affected_txn_ids": [
+      "3476602",
+      "3476633",
+      "3476665",
+      "3476682"
+    ],
+    "first_suspicious_txn_id": "3476602",
+    "connected_card_ids": [],
+    "connected_device_profiles": [
+      "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+      "iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242"
+    ],
+    "exposure_usd": 1906.07,
+    "evidence": [
+      {
+        "claim": "4 online purchases in 30 minutes, each just under a round authorisation limit ($478.95, $456.96, $488.04, $482.12), from 2 device profile(s) marked New",
+        "source": "graph",
+        "ref": "query:card_window(card_id=C07297-K1, -72h/+24h)",
+        "entity_ids": [
+          "3476602",
+          "3476633",
+          "3476665",
+          "3476682"
+        ]
+      },
+      {
+        "claim": "Customer states they did not make the purchase",
+        "source": "customer",
+        "ref": "trigger:customer_report",
+        "entity_ids": [
+          "C07297",
+          "3476682"
+        ]
+      },
+      {
+        "claim": "The device profile was already used 1 time(s) by this cardholder before the alert",
+        "source": "graph",
+        "ref": "query:behaviour_profile(holder=C07297-K1|264|142)",
+        "entity_ids": [
+          "C07297-K1|264|142",
+          "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080"
+        ]
+      },
+      {
+        "claim": "On C07297-K1, the shared device made 2 purchase(s) totalling $961.07; average case-memory score 0.18",
+        "source": "graph",
+        "ref": "query:card_window(card_id=C07297-K1)",
+        "entity_ids": [
+          "C07297-K1",
+          "3476602",
+          "3476682"
+        ]
+      },
+      {
+        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly card_not_present_new_device) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
+        "source": "graph",
+        "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
+        "entity_ids": [
+          "CC-3907",
+          "CC-0512",
+          "CC-1740",
+          "CC-2944",
+          "CC-4606",
+          "CC-0166",
+          "CC-1105",
+          "CC-1731"
+        ]
+      },
+      {
+        "claim": "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3476682 at 0.18; the bank's risk score is 0.25. Both are inputs, not a verdict",
+        "source": "graph",
+        "ref": "attr:Transaction(3476682).model_prob,risk_score",
+        "entity_ids": [
+          "3476682"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-3907",
+      "CC-0512",
+      "CC-1740",
+      "CC-2944",
+      "CC-4606",
+      "CC-4819"
+    ],
+    "summary": "Customer C07297 reported unauthorized activity on card C07297-K1 after noticing flagged transaction 3476682 for $482.12. Graph analysis uncovered an episode of four online transactions totaling $1,906.07 executed within thirty minutes on 2016-11-21. Each transaction was positioned just below a $500 threshold and alternated across two newly observed device profiles and billing regions 264 and 476. The customer explicitly denied initiating the transactions, confirming fraudulent activity.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-006"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability >= 0.85 on independent evidence (section 6); exposure $1,906.07 <= $2,500 so route L1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "File: exposure $1,906.07 exceeds $1,000; the pattern is coordinated / undocumented (R9) (section 3a, R9, R2)."
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R9: coordinated / undocumented pattern; hand to an analyst with the evidence"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability >= 0.85 on independent evidence (section 6); exposure $1,906.07 <= $2,500 so route L1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "File: exposure $1,906.07 exceeds $1,000; the pattern is coordinated / undocumented (R9) (section 3a, R9, R2)."
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R9: coordinated / undocumented pattern; hand to an analyst with the evidence"
+      }
+    ],
+    "what_changed": "Nothing changed between initial and final actions because the direct customer denial and total exposure of $1,906.07 immediately satisfied policy rule R2 criteria for blocking the card, opening a case, and filing a report."
+  },
+  "sar": {
+    "file": true,
+    "reason": "File: exposure $1,906.07 exceeds $1,000; the pattern is coordinated / undocumented (R9) (section 3a, R9, R2).",
+    "narrative": "This Suspicious Activity Report details unauthorized credit card transactions involving customer C07297 and card C07297-K1. On 2016-11-21, between 20:00:00 and 20:30:00, four unauthorized card-not-present transactions totaling $1,906.07 were processed across two distinct devices. The sequence began with transaction 3476602 for $478.95 originating in region 264 from device profile 'Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080'. Ten minutes later, transaction 3476633 for $456.96 was conducted from region 476 via mobile device profile 'iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242'. A third transaction, 3476665 for $488.04, was completed at 20:24:00 using the same iOS device in region 476. The activity concluded at 20:30:00 with transaction 3476682 for $482.12 processed from the Windows desktop device in region 264. Cardholder C07297 contacted the bank stating they did not make transaction 3476682 and requested a card review. The activity is highly suspicious due to the rapid alternating usage of two separate new devices across disparate regions and transaction amounts structured to avoid round-number $500 authorization thresholds. In response to confirmed card repudiation exceeding the $1,000 threshold, card C07297-K1 was blocked and this filing submitted.",
+    "subjects": [
+      "C07297",
+      "C07297-K1",
+      "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+      "iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242"
+    ],
+    "total_amount_usd": 1906.07,
+    "activity_dates": [
+      "2016-11-21",
+      "2016-11-21"
+    ]
+  },
+  "stop_reason": "The investigation was closed pursuant to policy section 6 as customer repudiation provided conclusive proof of fraud and all required containment actions were completed.",
+  "tool_calls": 11,
+  "tokens": 6947,
+  "latency_s": 18.1
+}

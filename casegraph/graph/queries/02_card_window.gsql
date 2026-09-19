@@ -1,0 +1,19 @@
+CREATE OR REPLACE QUERY card_window(STRING card_id, DATETIME t0, DATETIME t1, INT max_rows = 400) FOR GRAPH @GRAPH@ SYNTAX V2 {
+  /* Every transaction on a card inside [t0, t1], oldest first, with the fields an
+     investigator reads: amount, product, channel, region, device, device status,
+     proxy, email, both scores and the inferred holder. */
+  TYPEDEF TUPLE<STRING id, DATETIME ts, DOUBLE amount, STRING product, STRING channel, STRING region,
+                STRING device, STRING device_status, STRING proxy_type, STRING p_email, STRING r_email,
+                DOUBLE risk_score, DOUBLE model_prob, STRING holder, STRING m4, DOUBLE c1, DOUBLE dist1> Row;
+  HeapAccum<Row>(max_rows, ts ASC) @@rows;
+  SumAccum<INT> @@n;
+
+  C = {Card.*};
+  C = SELECT c FROM C:c WHERE c.id == card_id;
+  T = SELECT t FROM C:c -(MADE>:e)- Transaction:t
+      WHERE t.ts >= t0 AND t.ts <= t1
+      ACCUM @@n += 1,
+            @@rows += Row(t.id, t.ts, t.amount, t.product, t.channel, t.addr1, t.device_id, t.device_status,
+                          t.proxy_type, t.p_email, t.r_email, t.risk_score, t.model_prob, t.holder_id, t.m4, t.c1, t.dist1);
+  PRINT @@n AS n_in_window, @@rows AS txns;
+}

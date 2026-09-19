@@ -1,0 +1,111 @@
+{
+  "case_id": "HHG-001",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.04,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "The card has 10 earlier purchases in billing region 444 (first on 2016-09-13); the region is not new",
+        "source": "graph",
+        "ref": "query:region_context(card_id=C12382-K1, region=444)",
+        "entity_ids": [
+          "C12382-K1",
+          "444"
+        ]
+      },
+      {
+        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly out_of_region_use) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
+        "source": "graph",
+        "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
+        "entity_ids": [
+          "CC-3825",
+          "CC-5465",
+          "CC-4580",
+          "CC-3834",
+          "CC-0517",
+          "CC-0863",
+          "CC-2288",
+          "CC-4248"
+        ]
+      },
+      {
+        "claim": "The card has 4 earlier confirmed-fraud case(s) (most recent CC-3587, out_of_region_use), none involving this cardholder's transactions",
+        "source": "graph",
+        "ref": "query:prior_cases(card_id=C12382-K1)",
+        "entity_ids": [
+          "CC-3587",
+          "CC-2964",
+          "CC-1673",
+          "CC-1066"
+        ]
+      },
+      {
+        "claim": "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3514030 at 0.03; the bank's risk score is 0.61. Both are inputs, not a verdict",
+        "source": "graph",
+        "ref": "attr:Transaction(3514030).model_prob,risk_score",
+        "entity_ids": [
+          "3514030"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-3825",
+      "CC-5465",
+      "CC-4580",
+      "CC-3834",
+      "CC-0517",
+      "CC-0470"
+    ],
+    "summary": "Transaction 3514030 for $77.07 on card C12382-K1 was flagged by a real-time risk score of 0.61. Review of cardholder C12382's activity indicates that billing region 444 is not new, with 10 prior purchases recorded since 2016-09-13. The case-memory model assessed the fraud probability at 0.03, supporting the conclusion that this in-person transaction is legitimate. The transaction is allowed and the alert is closed without fraud.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-001"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "Probability <= 0.15 on two independent pieces of evidence (section 6); risk score alone is not a verdict (R1)"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "Probability <= 0.15 on two independent pieces of evidence (section 6); risk score alone is not a verdict (R1)"
+      }
+    ],
+    "final": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "Probability <= 0.15 on two independent pieces of evidence (section 6); risk score alone is not a verdict (R1)"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "Probability <= 0.15 on two independent pieces of evidence (section 6); risk score alone is not a verdict (R1)"
+      }
+    ],
+    "what_changed": "Nothing changed between the initial and final assessments, as the transaction was consistently determined to be legitimate."
+  },
+  "sar": {
+    "file": false,
+    "reason": "No report: fraud is not confirmed or strongly suspected (section 3a).",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "In accordance with policy section 6, the investigation was concluded because sufficient evidence confirmed legitimate customer behavior and fraud probability remained well below actionable thresholds.",
+  "tool_calls": 11,
+  "tokens": 3965,
+  "latency_s": 69.9
+}

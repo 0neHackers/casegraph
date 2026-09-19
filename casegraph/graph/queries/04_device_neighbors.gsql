@@ -1,0 +1,36 @@
+CREATE OR REPLACE QUERY device_neighbors(STRING device_id, DATETIME t0, DATETIME t1, INT max_cards = 60) FOR GRAPH @GRAPH@ SYNTAX V2 {
+  /* Who else used this device profile in the window, and what happened to them?
+     Returns every card seen on the device in [t0, t1] with its spend, device
+     status (New/Found), proxy flags and scores, plus closed cases that
+     involved any transaction ever made from this device. */
+  TYPEDEF TUPLE<STRING card, INT n, DOUBLE amount, DOUBLE avg_model, DOUBLE max_risk, INT n_new, INT n_proxy,
+                DATETIME first_ts, DATETIME last_ts> CardRow;
+  SumAccum<INT> @n, @n_new, @n_proxy;
+  SumAccum<DOUBLE> @amt;
+  AvgAccum @avg_model;
+  MaxAccum<DOUBLE> @max_risk;
+  MinAccum<DATETIME> @first;
+  MaxAccum<DATETIME> @last;
+  SetAccum<STRING> @txns;
+  HeapAccum<CardRow>(max_cards, first_ts ASC) @@cards;
+  MapAccum<STRING, MaxAccum<STRING>> @@case_outcome, @@case_pattern, @@case_card;
+  SumAccum<INT> @@window_txns, @@all_txns;
+  SetAccum<STRING> @@window_txn_ids;
+
+  D = {DeviceProfile.*};
+  D = SELECT d FROM D:d WHERE d.id == device_id;
+  T = SELECT t FROM D:d -(DEVICE_TXN>:e)- Transaction:t ACCUM @@all_txns += 1;
+  CC = SELECT cc FROM T:t -(IN_CLOSED_CASE>:e)- ClosedCase:cc
+       ACCUM @@case_outcome += (cc.id -> cc.outcome), @@case_pattern += (cc.id -> cc.pattern), @@case_card += (cc.id -> cc.card_id);
+  W = SELECT t FROM T:t WHERE t.ts >= t0 AND t.ts <= t1 ACCUM @@window_txns += 1, @@window_txn_ids += t.id;
+  CARDS = SELECT c FROM W:t -(MADE_BY>:e)- Card:c
+          ACCUM c.@n += 1, c.@amt += t.amount, c.@avg_model += t.model_prob, c.@max_risk += t.risk_score,
+                c.@first += t.ts, c.@last += t.ts, c.@txns += t.id,
+                IF t.device_status == "New" THEN c.@n_new += 1 END,
+                IF t.proxy_type != "" THEN c.@n_proxy += 1 END
+          POST-ACCUM @@cards += CardRow(c.id, c.@n, c.@amt, c.@avg_model, c.@max_risk, c.@n_new, c.@n_proxy, c.@first, c.@last);
+  PRINT @@all_txns AS device_txns_all_time, @@window_txns AS device_txns_in_window, CARDS.size() AS n_cards_in_window,
+        @@cards AS cards, @@case_outcome AS closed_case_outcome, @@case_pattern AS closed_case_pattern,
+        @@case_card AS closed_case_card;
+  PRINT CARDS[CARDS.@txns AS txns];
+}

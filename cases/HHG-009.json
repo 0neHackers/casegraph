@@ -1,0 +1,102 @@
+{
+  "case_id": "HHG-009",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3581141"
+    ],
+    "first_suspicious_txn_id": "3581141",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 30.02,
+    "evidence": [
+      {
+        "claim": "Customer states they did not make the purchase",
+        "source": "customer",
+        "ref": "trigger:customer_report",
+        "entity_ids": [
+          "C08299",
+          "3581141"
+        ]
+      },
+      {
+        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly card_not_present_fraud) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
+        "source": "graph",
+        "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
+        "entity_ids": [
+          "CC-3098",
+          "CC-2479",
+          "CC-3856",
+          "CC-3689",
+          "CC-2186",
+          "CC-2157",
+          "CC-3513",
+          "CC-0351"
+        ]
+      },
+      {
+        "claim": "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3581141 at 0.73; the bank's risk score is 0.28. Both are inputs, not a verdict",
+        "source": "graph",
+        "ref": "attr:Transaction(3581141).model_prob,risk_score",
+        "entity_ids": [
+          "3581141"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-3098",
+      "CC-2479",
+      "CC-3856",
+      "CC-3689",
+      "CC-2186",
+      "CC-2692"
+    ],
+    "summary": "Customer C08299 reported an unauthorized online transaction of $30.02 on card C08299-K1 on 2016-12-28. Transaction 3581141 was flagged with a model probability of 0.7257 and is consistent with card-not-present fraud patterns seen in prior cases like CC-3098. No shared device profiles or links to other fraudulent accounts were identified. Following policy R2, the card has been blocked and a case created.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-009"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability >= 0.85 on independent evidence (section 6); exposure $30.02 <= $2,500 so route L1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability >= 0.85 on independent evidence (section 6); exposure $30.02 <= $2,500 so route L1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
+      }
+    ],
+    "what_changed": "Nothing."
+  },
+  "sar": {
+    "file": false,
+    "reason": "Case only, no report: exposure $30.02 is under $1,000, no shared device, region cluster or link to another customer's fraud, and the pattern is documented (section 3a).",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Action taken under policy R2 due to customer denial; no SAR required per section 3a as exposure is under $1,000 and no shared origin was found.",
+  "tool_calls": 10,
+  "tokens": 6492,
+  "latency_s": 22.0
+}

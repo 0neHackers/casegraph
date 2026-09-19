@@ -1,0 +1,126 @@
+{
+  "case_id": "HHG-008",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3558054"
+    ],
+    "first_suspicious_txn_id": "3558054",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 55.68,
+    "evidence": [
+      {
+        "claim": "Customer states they did not make the purchase",
+        "source": "customer",
+        "ref": "trigger:customer_report",
+        "entity_ids": [
+          "C13171",
+          "3558054"
+        ]
+      },
+      {
+        "claim": "On C13171-K2, the shared device made 6 purchase(s) totalling $286.84; average case-memory score 0.37",
+        "source": "graph",
+        "ref": "query:card_window(card_id=C13171-K2)",
+        "entity_ids": [
+          "C13171-K2",
+          "3551233",
+          "3553275",
+          "3554288",
+          "3557979"
+        ]
+      },
+      {
+        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly card_not_present_fraud) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
+        "source": "graph",
+        "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
+        "entity_ids": [
+          "CC-4314",
+          "CC-3158",
+          "CC-2281",
+          "CC-4687",
+          "CC-3642",
+          "CC-1621",
+          "CC-1954",
+          "CC-0054"
+        ]
+      },
+      {
+        "claim": "The card has 18 earlier confirmed-fraud case(s) (most recent CC-5010, card_not_present_new_device), none involving this cardholder's transactions",
+        "source": "graph",
+        "ref": "query:prior_cases(card_id=C13171-K2)",
+        "entity_ids": [
+          "CC-5010",
+          "CC-4485",
+          "CC-4163",
+          "CC-3928",
+          "CC-3728"
+        ]
+      },
+      {
+        "claim": "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3558054 at 0.63; the bank's risk score is 0.38. Both are inputs, not a verdict",
+        "source": "graph",
+        "ref": "attr:Transaction(3558054).model_prob,risk_score",
+        "entity_ids": [
+          "3558054"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-4314",
+      "CC-3158",
+      "CC-2281",
+      "CC-4687",
+      "CC-3642",
+      "CC-5525"
+    ],
+    "summary": "Customer C13171 reported an unauthorized online transaction of $55.68 on card C13171-K2 occurring on 2016-12-19. Investigation revealed a total of six transactions totaling $286.84 from a Chrome 66.0 device profile. The card has a history of 18 prior fraud cases, and behavioral analysis shows 100% of similar historical cases were confirmed fraud. Based on the customer's denial and the high probability of fraud, the card has been blocked.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-008"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability >= 0.85 on independent evidence (section 6); exposure $55.68 <= $2,500 so route L1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability >= 0.85 on independent evidence (section 6); exposure $55.68 <= $2,500 so route L1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": false,
+    "reason": "Case only, no report: exposure $55.68 is under $1,000, no shared device, region cluster or link to another customer's fraud, and the pattern is documented (section 3a).",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Per policy section 6, the investigation is concluded as the card has been blocked and a case created following a confirmed customer denial (R2).",
+  "tool_calls": 13,
+  "tokens": 5069,
+  "latency_s": 17.1
+}

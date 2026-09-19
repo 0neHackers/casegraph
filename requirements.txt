@@ -1,0 +1,19 @@
+# graph + MCP
+pyTigerGraph==2.0.4
+tigergraph-mcp==1.0.3
+mcp==1.27.0
+# LLM
+google-genai==2.24.0
+# data, model, retrieval
+duckdb==1.5.5
+pandas==3.0.2
+numpy==2.4.4
+pyarrow==25.0.1
+lightgbm==4.7.0
+scikit-learn==1.8.0
+fastembed==0.8.0
+pypdf==3.17.4
+python-dotenv==1.2.2
+# UI
+streamlit==1.64.0
+pyvis==0.3.2

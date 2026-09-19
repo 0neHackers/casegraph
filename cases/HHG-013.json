@@ -1,0 +1,122 @@
+{
+  "case_id": "HHG-013",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.04,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Customer confirmed the activity when asked (simulated reply; see evidence_requests)",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 1 were confirmed fraud (mostly card_not_present_new_device) and 7 were cleared (history base rate: 84% of closed cases are fraud)",
+        "source": "graph",
+        "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
+        "entity_ids": [
+          "CC-3602",
+          "CC-4395",
+          "CC-4443",
+          "CC-0281",
+          "CC-4021",
+          "CC-1147",
+          "CC-5288",
+          "CC-1393"
+        ]
+      },
+      {
+        "claim": "Identity record marks the device New for this account and it has never been seen on this cardholder or card",
+        "source": "graph",
+        "ref": "query:txn_context(txn_id=3526826)",
+        "entity_ids": [
+          "3526826",
+          "Windows | ? | chrome 66.0 | ?"
+        ]
+      },
+      {
+        "claim": "The card has 3 earlier confirmed-fraud case(s) (most recent CC-4294, account_takeover), none involving this cardholder's transactions",
+        "source": "graph",
+        "ref": "query:prior_cases(card_id=C07671-K2)",
+        "entity_ids": [
+          "CC-4294",
+          "CC-3216",
+          "CC-1475"
+        ]
+      },
+      {
+        "claim": "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3526826 at 0.01; the bank's risk score is 0.76. Both are inputs, not a verdict",
+        "source": "graph",
+        "ref": "attr:Transaction(3526826).model_prob,risk_score",
+        "entity_ids": [
+          "3526826"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-3602",
+      "CC-4395",
+      "CC-4443",
+      "CC-0281",
+      "CC-4021",
+      "CC-3635"
+    ],
+    "summary": "Case HHG-013 was initiated after transaction 3526826 for $35.66 on card C07671-K2 was flagged with a risk score of 0.76. The transaction occurred online on 2016-12-09 using an unrecognized Windows device. Upon contacting the customer, they confirmed the transaction was legitimate and that they were using a new device. The case was resolved as legitimate, the device was added to the profile, and the alert was cleared.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-013"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 7,
+      "assumed_response": "Customer confirms the purchase and that they are using a new device; device added to profile"
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: the alert rests on the risk score alone (0.76) and the graph evidence contradicts it (p=0.04); confirm with the cardholder, as the bank did for every cleared alert in its history, then close"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a: evidence is being requested, which opens a case"
+      }
+    ],
+    "final": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "R3: customer confirmed the transaction"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: customer confirmed the transaction"
+      }
+    ],
+    "what_changed": "The initial recommendation was to verify the transaction with the customer and create a case. The final recommendation changed to allowing the transaction and closing the case with no fraud after the customer confirmed the purchase."
+  },
+  "sar": {
+    "file": false,
+    "reason": "No report: fraud is not confirmed or strongly suspected (section 3a).",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "The investigation was stopped and the card remained active because the customer confirmed the transaction, satisfying the verification policy for legitimate activity.",
+  "tool_calls": 11,
+  "tokens": 4993,
+  "latency_s": 60.1
+}

@@ -1,0 +1,46 @@
+CREATE OR REPLACE QUERY prior_cases(STRING card_id, STRING holder_id, STRING device_id, DATETIME before_ts) FOR GRAPH @GRAPH@ SYNTAX V2 {
+  /* Case memory by graph proximity. Closed cases and the agent's own earlier
+     investigations that touch this card, this holder, or this device profile,
+     opened before the alert. Also: cases in which this card was named as a
+     connected card of someone else's fraud. */
+  TYPEDEF TUPLE<STRING id, STRING link, DATETIME opened, STRING outcome, STRING pattern, INT n_txns,
+                DOUBLE exposure, STRING notes> CaseRow;
+  TYPEDEF TUPLE<STRING id, STRING link, DATETIME opened, STRING verdict, STRING pattern, DOUBLE exposure,
+                STRING summary> OwnRow;
+  HeapAccum<CaseRow>(60, opened DESC) @@closed;
+  HeapAccum<OwnRow>(30, opened DESC) @@own;
+  SetAccum<STRING> @@seen;
+  OrAccum @on_card, @on_holder, @on_device, @connected;
+
+  C = {Card.*};
+  C = SELECT c FROM C:c WHERE c.id == card_id;
+  X1 = SELECT cc FROM C:c -(CARD_CLOSED_CASE>:e)- ClosedCase:cc WHERE cc.opened_at < before_ts ACCUM cc.@on_card += TRUE;
+  X2 = SELECT cc FROM C:c -(CONNECTED_CLOSED_CASE>:e)- ClosedCase:cc WHERE cc.opened_at < before_ts ACCUM cc.@connected += TRUE;
+
+  H = {Holder.*};
+  H = SELECT h FROM H:h WHERE h.id == holder_id;
+  X3 = SELECT cc FROM H:h -(HOLDER_TXN>:e)- Transaction:t -(IN_CLOSED_CASE>:e2)- ClosedCase:cc
+       WHERE cc.opened_at < before_ts ACCUM cc.@on_holder += TRUE;
+
+  D = {DeviceProfile.*};
+  D = SELECT d FROM D:d WHERE d.id == device_id;
+  X4 = SELECT cc FROM D:d -(DEVICE_TXN>:e)- Transaction:t -(IN_CLOSED_CASE>:e2)- ClosedCase:cc
+       WHERE cc.opened_at < before_ts ACCUM cc.@on_device += TRUE;
+
+  ALLC = X1 UNION X2 UNION X3 UNION X4;
+  ALLC = SELECT cc FROM ALLC:cc
+         POST-ACCUM
+           STRING link = "",
+           IF cc.@on_card THEN link = link + "card " END,
+           IF cc.@on_holder THEN link = link + "holder " END,
+           IF cc.@on_device THEN link = link + "device " END,
+           IF cc.@connected THEN link = link + "connected " END,
+           @@closed += CaseRow(cc.id, link, cc.opened_at, cc.outcome, cc.pattern, cc.n_txns, cc.exposure_usd, cc.analyst_notes);
+
+  O1 = SELECT ic FROM C:c -(CARD_CASE>:e)- InvestigationCase:ic WHERE ic.opened_at < before_ts
+       ACCUM @@own += OwnRow(ic.id, "card:" + e.role, ic.opened_at, ic.verdict, ic.pattern, ic.exposure_usd, ic.summary);
+  O2 = SELECT ic FROM D:d -(DEVICE_CASE>:e)- InvestigationCase:ic WHERE ic.opened_at < before_ts
+       ACCUM @@own += OwnRow(ic.id, "device", ic.opened_at, ic.verdict, ic.pattern, ic.exposure_usd, ic.summary);
+
+  PRINT @@closed AS closed_cases, @@own AS agent_cases;
+}

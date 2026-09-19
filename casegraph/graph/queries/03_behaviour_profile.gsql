@@ -1,0 +1,55 @@
+CREATE OR REPLACE QUERY behaviour_profile(STRING card_id, STRING holder_id, DATETIME before_ts,
+                                          STRING device_id, STRING region, STRING p_email, STRING product, DOUBLE amount)
+  FOR GRAPH @GRAPH@ SYNTAX V2 {
+  /* What is normal for this cardholder, strictly before the alert.
+     Answers the investigator's first questions: has this card / this holder
+     used this device, this region, this email, this product before, and how
+     unusual is the amount? Holder = the individual behind the card. */
+  SumAccum<INT> @@card_n, @@card_online, @@card_in_person, @@card_same_region, @@card_same_device, @@card_same_email,
+                @@card_same_product, @@card_bigger;
+  SumAccum<INT> @@h_n, @@h_same_region, @@h_same_device, @@h_same_email, @@h_same_product, @@h_bigger, @@h_online;
+  AvgAccum @@card_avg, @@h_avg;
+  MaxAccum<DOUBLE> @@card_max, @@h_max;
+  MaxAccum<DATETIME> @@card_last, @@h_last;
+  MinAccum<DATETIME> @@h_first, @@card_first;
+  MapAccum<STRING, SumAccum<INT>> @@card_regions, @@card_products, @@card_devices, @@h_products;
+  SetAccum<STRING> @@h_devices;
+
+  C = {Card.*};
+  C = SELECT c FROM C:c WHERE c.id == card_id;
+  CT = SELECT t FROM C:c -(MADE>:e)- Transaction:t
+       WHERE t.ts < before_ts
+       ACCUM @@card_n += 1, @@card_avg += t.amount, @@card_max += t.amount, @@card_last += t.ts, @@card_first += t.ts,
+             @@card_regions += (t.addr1 -> 1), @@card_products += (t.product -> 1),
+             IF t.channel == "online" THEN @@card_online += 1 ELSE @@card_in_person += 1 END,
+             IF t.device_id != "" THEN @@card_devices += (t.device_id -> 1) END,
+             IF region != "" AND t.addr1 == region THEN @@card_same_region += 1 END,
+             IF device_id != "" AND t.device_id == device_id THEN @@card_same_device += 1 END,
+             IF p_email != "" AND t.p_email == p_email THEN @@card_same_email += 1 END,
+             IF t.product == product THEN @@card_same_product += 1 END,
+             IF t.amount >= amount THEN @@card_bigger += 1 END;
+
+  H = {Holder.*};
+  H = SELECT h FROM H:h WHERE h.id == holder_id;
+  HT = SELECT t FROM H:h -(HOLDER_TXN>:e)- Transaction:t
+       WHERE t.ts < before_ts
+       ACCUM @@h_n += 1, @@h_avg += t.amount, @@h_max += t.amount, @@h_last += t.ts, @@h_first += t.ts,
+             @@h_products += (t.product -> 1),
+             IF t.channel == "online" THEN @@h_online += 1 END,
+             IF t.device_id != "" THEN @@h_devices += t.device_id END,
+             IF region != "" AND t.addr1 == region THEN @@h_same_region += 1 END,
+             IF device_id != "" AND t.device_id == device_id THEN @@h_same_device += 1 END,
+             IF p_email != "" AND t.p_email == p_email THEN @@h_same_email += 1 END,
+             IF t.product == product THEN @@h_same_product += 1 END,
+             IF t.amount >= amount THEN @@h_bigger += 1 END;
+
+  PRINT @@card_n AS card_n, @@card_online AS card_online, @@card_in_person AS card_in_person,
+        @@card_avg AS card_avg_amount, @@card_max AS card_max_amount, @@card_first AS card_first, @@card_last AS card_last,
+        @@card_same_region AS card_same_region, @@card_same_device AS card_same_device, @@card_same_email AS card_same_email,
+        @@card_same_product AS card_same_product, @@card_bigger AS card_n_bigger,
+        @@card_regions.size() AS card_n_regions, @@card_devices.size() AS card_n_devices, @@card_products AS card_products;
+  PRINT @@h_n AS holder_n, @@h_online AS holder_online, @@h_avg AS holder_avg_amount, @@h_max AS holder_max_amount,
+        @@h_first AS holder_first, @@h_last AS holder_last, @@h_same_region AS holder_same_region,
+        @@h_same_device AS holder_same_device, @@h_same_email AS holder_same_email, @@h_same_product AS holder_same_product,
+        @@h_bigger AS holder_n_bigger, @@h_devices.size() AS holder_n_devices, @@h_products AS holder_products;
+}

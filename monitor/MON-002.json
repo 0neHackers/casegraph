@@ -1,0 +1,195 @@
+{
+  "trigger": {
+    "case_id": "MON-002",
+    "opened_at": "2016-12-26 22:04:47",
+    "trigger_type": "analyst_request",
+    "trigger_text": "Autonomous monitor: 8 cards share 1 unusual device profile(s) between 2016-12-20 and 2017-01-03 (0% New-to-account, 0% behind a proxy). Review transaction 3576545 on card C06343-K1.",
+    "flagged_txn_id": "3576545",
+    "card_id": "C06343-K1",
+    "customer_id": "C06343",
+    "risk_score": ""
+  },
+  "case_id": "MON-002",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.97,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3573558",
+      "3576545"
+    ],
+    "first_suspicious_txn_id": "3573558",
+    "connected_card_ids": [
+      "C02515-K2",
+      "C02575-K2",
+      "C05402-K1",
+      "C06336-K1",
+      "C08893-K1",
+      "C09165-K2",
+      "C13284-K1"
+    ],
+    "connected_device_profiles": [
+      "FRD-L09 Build/HUAWEIFRD-L09 | Android 7.0 | chrome 66.0 for android | 1920x1080"
+    ],
+    "exposure_usd": 224.86,
+    "evidence": [
+      {
+        "claim": "Device profile 'FRD-L09 Build/HUAWEIFRD-L09 | Android 7.0 | chrome 66.0 for android | 1920x1080' (seen on only 8 cards in six months) was used by 7 other card(s) between 2016-12-22 and 2016-12-29, at amounts close to $74.93; 7 of them marked New or scored high",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id, -14d/+7d)",
+        "entity_ids": [
+          "C09165-K2",
+          "C06336-K1",
+          "C02515-K2",
+          "C02575-K2",
+          "C05402-K1",
+          "C13284-K1",
+          "C08893-K1"
+        ]
+      },
+      {
+        "claim": "Connected-components scan over cardholders and specific device profiles (2016-12-22 to 2016-12-29) puts this card in a group of 8 cards and 9 cardholders joined by 1 device profile(s): 9 transactions, $974.91, 0% on a device New to the account, 0% behind a proxy",
+        "source": "graph",
+        "ref": "query:device_ring(seed_device, +/-14d)",
+        "entity_ids": [
+          "C02515-K2",
+          "C02575-K2",
+          "C05402-K1",
+          "C06336-K1",
+          "C06343-K1",
+          "C08893-K1",
+          "C09165-K2",
+          "C13284-K1"
+        ]
+      },
+      {
+        "claim": "Analyst flagged purchases from the same unusual device profile on several cards",
+        "source": "external",
+        "ref": "trigger:analyst_request",
+        "entity_ids": [
+          "3576545"
+        ]
+      },
+      {
+        "claim": "On C06343-K1, the shared device made 2 purchase(s) totalling $224.86; average case-memory score 0.43",
+        "source": "graph",
+        "ref": "query:card_window(card_id=C06343-K1)",
+        "entity_ids": [
+          "C06343-K1",
+          "3573558",
+          "3576545"
+        ]
+      },
+      {
+        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly card_not_present_fraud) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
+        "source": "graph",
+        "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
+        "entity_ids": [
+          "CC-0395",
+          "CC-1258",
+          "CC-0409",
+          "CC-5372",
+          "CC-2629",
+          "CC-0286",
+          "CC-3631",
+          "CC-1125"
+        ]
+      },
+      {
+        "claim": "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3576545 at 0.58; the bank's risk score is 0.61. Both are inputs, not a verdict",
+        "source": "graph",
+        "ref": "attr:Transaction(3576545).model_prob,risk_score",
+        "entity_ids": [
+          "3576545"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0395",
+      "CC-1258",
+      "CC-0409",
+      "CC-5372",
+      "CC-2629",
+      "CC-3635"
+    ],
+    "summary": "Investigation into card C06343-K1 following an automated alert for a shared device profile. Transaction 3576545 ($74.93) and 3573558 ($149.93) were conducted via a Huawei FRD-L09 device profile. This specific device profile was shared by 7 other cards, including C02515-K2 and C13284-K1, within a one-week window in December 2016. The coordinated activity across multiple accounts suggests a card-not-present fraud pattern.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-M002"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability >= 0.85 on independent evidence (section 6); exposure $224.86 <= $2,500 so route L1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: 7 other card(s) share the device profile FRD-L09 Build/HUAWEIFRD-L09 | Android 7.0 | chrome 66.0 for android | 1920x1080"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "File: the activity connects to a shared device profile FRD-L09 Build/HUAWEIFRD-L09 | Android 7.0 | chrome 66.0 for android | 1920x1080 and other cards (section 3a, R6, R2)."
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability >= 0.85 on independent evidence (section 6); exposure $224.86 <= $2,500 so route L1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: 7 other card(s) share the device profile FRD-L09 Build/HUAWEIFRD-L09 | Android 7.0 | chrome 66.0 for android | 1920x1080"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "File: the activity connects to a shared device profile FRD-L09 Build/HUAWEIFRD-L09 | Android 7.0 | chrome 66.0 for android | 1920x1080 and other cards (section 3a, R6, R2)."
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "File: the activity connects to a shared device profile FRD-L09 Build/HUAWEIFRD-L09 | Android 7.0 | chrome 66.0 for android | 1920x1080 and other cards (section 3a, R6, R2).",
+    "narrative": "Between 2016-12-22 and 2016-12-29, a single device profile (FRD-L09 Build/HUAWEIFRD-L09) was used to conduct transactions across 8 different card accounts. On 2016-12-26, transaction 3576545 for $74.93 was processed online for cardholder C06343. This cardholder also had a $149.93 transaction (3573558) on 2016-12-25 using the same device. The device profile is unusual, appearing on only 8 cards in a six-month period, all within this specific timeframe. Other connected cards include C02515-K2, C02575-K2, and C13284-K1. The aggregate activity across the 9 cardholders involved 9 transactions totaling $974.91. This pattern of a shared device profile across multiple unrelated accounts is indicative of coordinated card-not-present fraud. The bank has blocked card C06343-K1 and placed connected cards under monitoring. This report is filed due to the connection to a shared device profile and suspected coordinated abuse.",
+    "subjects": [
+      "C06343",
+      "C06343-K1",
+      "C02515-K2",
+      "C02575-K2",
+      "C05402-K1",
+      "C06336-K1",
+      "C08893-K1",
+      "C09165-K2",
+      "C13284-K1",
+      "FRD-L09 Build/HUAWEIFRD-L09 | Android 7.0 | chrome 66.0 for android | 1920x1080"
+    ],
+    "total_amount_usd": 224.86,
+    "activity_dates": [
+      "2016-12-25",
+      "2016-12-26"
+    ]
+  },
+  "stop_reason": "Actions taken per Policy R6 regarding shared origin and R2 due to the connection to a shared device profile and other cards' fraud.",
+  "tool_calls": 14,
+  "tokens": 7391,
+  "latency_s": 25.6
+}

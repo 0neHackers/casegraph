@@ -1,0 +1,22 @@
+CREATE OR REPLACE QUERY txn_context(STRING txn_id) FOR GRAPH @GRAPH@ SYNTAX V2 {
+  /* The flagged transaction and everything one hop away from it:
+     card, customer, inferred holder, device profile, billing region, email domains. */
+  SetAccum<STRING> @@cards, @@customers, @@holders, @@devices, @@regions, @@emails;
+  MapAccum<STRING, INT> @@device_cards, @@device_txns, @@region_cards, @@holder_txns;
+
+  T = {Transaction.*};
+  T = SELECT t FROM T:t WHERE t.id == txn_id;
+
+  C = SELECT c FROM T:t -(MADE_BY>:e)- Card:c ACCUM @@cards += c.id;
+  U = SELECT u FROM C:c -(OWNED_BY>:e)- Customer:u ACCUM @@customers += u.id;
+  H = SELECT h FROM T:t -(BY_HOLDER>:e)- Holder:h ACCUM @@holders += h.id, @@holder_txns += (h.id -> h.n_txn);
+  D = SELECT d FROM T:t -(FROM_DEVICE>:e)- DeviceProfile:d
+      ACCUM @@devices += d.id, @@device_cards += (d.id -> d.n_cards), @@device_txns += (d.id -> d.n_txn);
+  R = SELECT r FROM T:t -(BILLED_IN>:e)- BillingRegion:r ACCUM @@regions += r.id, @@region_cards += (r.id -> r.n_cards);
+  E = SELECT m FROM T:t -((PURCHASER_EMAIL>|RECIPIENT_EMAIL>):e)- EmailDomain:m ACCUM @@emails += m.id;
+
+  PRINT T AS txn;
+  PRINT @@cards AS card, @@customers AS customer, @@holders AS holder, @@holder_txns AS holder_txns,
+        @@devices AS device, @@device_cards AS device_cards_total, @@device_txns AS device_txns_total,
+        @@regions AS region, @@region_cards AS region_cards_total, @@emails AS email_domains;
+}

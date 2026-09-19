@@ -1,0 +1,25 @@
+{
+  "validation": "out-of-time, train Jul-Sep, test Oct",
+  "model_auc": 0.9184,
+  "model_ap": 0.4708,
+  "risk_score_auc": 0.866,
+  "risk_score_ap": 0.2521,
+  "best_iteration": 188,
+  "top_features": [
+    "V257",
+    "D1n",
+    "V258",
+    "uid_amt_std",
+    "uid_amt_mean",
+    "C14",
+    "card_id_amt_mean",
+    "C1",
+    "C13",
+    "DeviceInfo",
+    "card_id_n",
+    "V294",
+    "card_id_amt_std",
+    "card2",
+    "uid_n"
+  ]
+}

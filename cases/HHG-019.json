@@ -1,0 +1,182 @@
+{
+  "case_id": "HHG-019",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.97,
+    "pattern": "card_not_present_new_device",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3503878"
+    ],
+    "first_suspicious_txn_id": "3503878",
+    "connected_card_ids": [
+      "C01104-K2",
+      "C01983-K1",
+      "C06224-K2",
+      "C11309-K1"
+    ],
+    "connected_device_profiles": [
+      "Windows | other | chrome 61.0 | 1280x720"
+    ],
+    "exposure_usd": 99.92,
+    "evidence": [
+      {
+        "claim": "Device profile 'Windows | other | chrome 61.0 | 1280x720' (seen on only 5 cards in six months) was used by 4 other card(s) between 2016-11-29 and 2016-12-04, at amounts close to $99.92; 4 of them marked New or scored high",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id, -14d/+7d)",
+        "entity_ids": [
+          "C11309-K1",
+          "C06224-K2",
+          "C01983-K1",
+          "C01104-K2"
+        ]
+      },
+      {
+        "claim": "Connected-components scan over cardholders and specific device profiles (2016-11-29 to 2016-12-04) puts this card in a group of 5 cards and 5 cardholders joined by 1 device profile(s): 5 transactions, $500.00, 80% on a device New to the account, 0% behind a proxy",
+        "source": "graph",
+        "ref": "query:device_ring(seed_device, +/-14d)",
+        "entity_ids": [
+          "C01104-K2",
+          "C01983-K1",
+          "C06224-K2",
+          "C07987-K2",
+          "C11309-K1"
+        ]
+      },
+      {
+        "claim": "Identity record marks the device New for this account and it has never been seen on this cardholder or card",
+        "source": "graph",
+        "ref": "query:txn_context(txn_id=3503878)",
+        "entity_ids": [
+          "3503878",
+          "Windows | other | chrome 61.0 | 1280x720"
+        ]
+      },
+      {
+        "claim": "On C07987-K2, the shared device made 1 purchase(s) totalling $99.92; average case-memory score 0.63",
+        "source": "graph",
+        "ref": "query:card_window(card_id=C07987-K2)",
+        "entity_ids": [
+          "C07987-K2",
+          "3503878"
+        ]
+      },
+      {
+        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly card_not_present_new_device) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
+        "source": "graph",
+        "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
+        "entity_ids": [
+          "CC-2878",
+          "CC-3438",
+          "CC-4613",
+          "CC-1516",
+          "CC-1753",
+          "CC-5240",
+          "CC-2811",
+          "CC-1664"
+        ]
+      },
+      {
+        "claim": "The card has 3 earlier confirmed-fraud case(s) (most recent CC-5026, out_of_region_use), none involving this cardholder's transactions",
+        "source": "graph",
+        "ref": "query:prior_cases(card_id=C07987-K2)",
+        "entity_ids": [
+          "CC-5026",
+          "CC-2860",
+          "CC-2011"
+        ]
+      },
+      {
+        "claim": "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3503878 at 0.63; the bank's risk score is 0.90. Both are inputs, not a verdict",
+        "source": "graph",
+        "ref": "attr:Transaction(3503878).model_prob,risk_score",
+        "entity_ids": [
+          "3503878"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-2878",
+      "CC-3438",
+      "CC-4613",
+      "CC-1516",
+      "CC-1753",
+      "CC-1115"
+    ],
+    "summary": "This case (HHG-019) was triggered by a real-time risk score of 0.90 on transaction 3503878 ($99.92) on card C07987-K2. The transaction was an online purchase on 2016-12-01 using a new device profile 'Windows | other | chrome 61.0 | 1280x720'. Investigation revealed this device profile was shared among 5 cards (including C07987-K2, C01104-K2, C01983-K1, C06224-K2, and C11309-K1) between 2016-11-29 and 2016-12-04, totaling $500.00. Based on prior confirmed fraud cases like CC-2878 and CC-3438, this fits the card-not-present new device fraud pattern, leading to the card being blocked and a SAR being filed.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-019"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability >= 0.85 on independent evidence (section 6); exposure $99.92 <= $2,500 so route L1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: 4 other card(s) share the device profile Windows | other | chrome 61.0 | 1280x720"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "File: the activity connects to a shared device profile Windows | other | chrome 61.0 | 1280x720 and other cards (section 3a, R6, R2)."
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability >= 0.85 on independent evidence (section 6); exposure $99.92 <= $2,500 so route L1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: 4 other card(s) share the device profile Windows | other | chrome 61.0 | 1280x720"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "File: the activity connects to a shared device profile Windows | other | chrome 61.0 | 1280x720 and other cards (section 3a, R6, R2)."
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "File: the activity connects to a shared device profile Windows | other | chrome 61.0 | 1280x720 and other cards (section 3a, R6, R2).",
+    "narrative": "On 2016-12-01, cardholder C07987 experienced an unauthorized online transaction of $99.92 on card C07987-K2. The transaction (ID 3503878) originated from a device profile 'Windows | other | chrome 61.0 | 1280x720' which was completely new to the cardholder's account. A subsequent network analysis revealed that this exact device profile was used to conduct transactions across 5 different cardholders between 2016-11-29 and 2016-12-04, totaling $500.00. The connected cards involved in this activity include C01104-K2, C01983-K1, C06224-K2, and C11309-K1. This coordinated use of a single new device profile across multiple unrelated accounts indicates a systematic card-not-present fraud ring. Similar prior cases, such as CC-2878 and CC-3438, confirm this pattern as highly indicative of compromise. Therefore, a Suspicious Activity Report is being filed to document this coordinated abuse, and card C07987-K2 has been blocked to prevent further exposure.",
+    "subjects": [
+      "C07987",
+      "C07987-K2",
+      "C01104-K2",
+      "C01983-K1",
+      "C06224-K2",
+      "C11309-K1",
+      "Windows | other | chrome 61.0 | 1280x720"
+    ],
+    "total_amount_usd": 99.92,
+    "activity_dates": [
+      "2016-12-01",
+      "2016-12-01"
+    ]
+  },
+  "stop_reason": "The card was blocked and a report filed under Policy R2 and R6 due to the transaction's connection to a shared device profile and other cards' fraud.",
+  "tool_calls": 14,
+  "tokens": 7099,
+  "latency_s": 60.2
+}

@@ -1,0 +1,91 @@
+CREATE OR REPLACE QUERY device_ring(STRING seed_card = "", STRING seed_device = "", DATETIME t0, DATETIME t1, INT max_window_cards = 40,
+                                    INT max_device_cards = 250, INT min_cards = 3, INT max_iter = 12, INT top = 25)
+  FOR GRAPH @GRAPH@ SYNTAX V2 {
+  /* Weakly-connected components (label propagation) on the bipartite
+     Holder <-> DeviceProfile graph, restricted to transactions in [t0, t1].
+
+     Two filters keep the result meaningful:
+       * holders, not cards: a "card" in this data can be an issuer bucket with
+         thousands of transactions, which would bridge unrelated devices. A
+         Holder is one inferred cardholder.
+       * device specificity: a device profile only links people if it touched
+         between 2 and max_window_cards cards inside the window and at most
+         max_device_cards cards in the whole dataset. Generic profiles such as
+         "Windows | chrome" are dropped.
+     What is left are small, tight groups of cardholders that share an unusual
+     device in a short window: the footprint of a ring, a mule herder or a
+     compromised terminal.
+
+     If seed_card / seed_device is given, only the component(s) containing that
+     card / device are returned (empty if it is in no component). */
+  TYPEDEF TUPLE<STRING label, INT n_cards, INT n_holders, INT n_devices, INT n_txns, DOUBLE amount, DOUBLE avg_model,
+                INT n_new_device, INT n_proxy, DATETIME first_ts, DATETIME last_ts> Comp;
+  HeapAccum<Comp>(top, n_cards DESC) @@out;
+  MapAccum<STRING, SetAccum<STRING>> @@members, @@devices;
+  SetAccum<STRING> @@seed_labels;
+  SetAccum<STRING> @wcards;
+  MinAccum<STRING> @lab;
+  MinAccum<STRING> @prev;
+  SumAccum<INT> @@changed;
+  SumAccum<INT> @n_tx, @n_new, @n_proxy;
+  SumAccum<DOUBLE> @amt;
+  AvgAccum @model;
+  MinAccum<DATETIME> @first;
+  MaxAccum<DATETIME> @last;
+  SetAccum<STRING> @cards;
+  MapAccum<STRING, SetAccum<STRING>> @@comp_cards, @@comp_holders, @@comp_devices;
+  MapAccum<STRING, SumAccum<DOUBLE>> @@comp_amt;
+  MapAccum<STRING, SumAccum<INT>> @@comp_tx, @@comp_new, @@comp_proxy;
+  MapAccum<STRING, AvgAccum> @@comp_model;
+  MapAccum<STRING, MinAccum<DATETIME>> @@comp_first;
+  MapAccum<STRING, MaxAccum<DATETIME>> @@comp_last;
+  INT it = 0;
+
+  D = {DeviceProfile.*};
+  D = SELECT d FROM D:d -(DEVICE_TXN>:e1)- Transaction:t -(MADE_BY>:e2)- Card:c
+      WHERE d.n_cards >= 2 AND d.n_cards <= max_device_cards AND t.ts >= t0 AND t.ts <= t1
+      ACCUM d.@wcards += c.id
+      HAVING d.@wcards.size() >= 2 AND d.@wcards.size() <= max_window_cards;
+  D = SELECT d FROM D:d POST-ACCUM d.@lab = d.id, d.@prev = d.id;
+
+  H = SELECT h FROM D:d -(DEVICE_TXN>:e1)- Transaction:t -(BY_HOLDER>:e2)- Holder:h
+      WHERE t.ts >= t0 AND t.ts <= t1
+      ACCUM h.@n_tx += 1, h.@amt += t.amount, h.@model += t.model_prob, h.@first += t.ts, h.@last += t.ts,
+            IF t.device_status == "New" THEN h.@n_new += 1 END,
+            IF t.proxy_type != "" THEN h.@n_proxy += 1 END
+      POST-ACCUM h.@lab = h.id, h.@prev = h.id;
+  H = SELECT h FROM H:h -(HOLDER_OF>:e)- Card:c ACCUM h.@cards += c.id;
+
+  @@changed = 1;
+  WHILE @@changed > 0 LIMIT max_iter DO
+    @@changed = 0;
+    it = it + 1;
+    X = SELECT h FROM D:d -(DEVICE_TXN>:e1)- Transaction:t -(BY_HOLDER>:e2)- Holder:h
+        WHERE t.ts >= t0 AND t.ts <= t1
+        ACCUM h.@lab += d.@lab, d.@lab += h.@lab;
+    X = SELECT h FROM H:h POST-ACCUM IF h.@lab != h.@prev THEN @@changed += 1 END, h.@prev = h.@lab;
+    Y = SELECT d FROM D:d POST-ACCUM IF d.@lab != d.@prev THEN @@changed += 1 END, d.@prev = d.@lab;
+  END;
+
+  X = SELECT h FROM H:h
+      POST-ACCUM @@comp_holders += (h.@lab -> h.id), @@comp_cards += (h.@lab -> h.@cards), @@comp_amt += (h.@lab -> h.@amt),
+                 @@comp_tx += (h.@lab -> h.@n_tx), @@comp_new += (h.@lab -> h.@n_new), @@comp_proxy += (h.@lab -> h.@n_proxy),
+                 @@comp_model += (h.@lab -> h.@model), @@comp_first += (h.@lab -> h.@first), @@comp_last += (h.@lab -> h.@last),
+                 IF seed_card != "" AND h.@cards.contains(seed_card) THEN @@seed_labels += h.@lab END;
+  Y = SELECT d FROM D:d POST-ACCUM @@comp_devices += (d.@lab -> d.id),
+                                   IF seed_device != "" AND d.id == seed_device THEN @@seed_labels += d.@lab END;
+
+  FOREACH (lab, cs) IN @@comp_cards DO
+    IF (seed_card == "" AND seed_device == "" AND cs.size() >= min_cards) OR @@seed_labels.contains(lab) THEN
+      @@out += Comp(lab, cs.size(), @@comp_holders.get(lab).size(), @@comp_devices.get(lab).size(), @@comp_tx.get(lab),
+                    @@comp_amt.get(lab), @@comp_model.get(lab), @@comp_new.get(lab), @@comp_proxy.get(lab),
+                    @@comp_first.get(lab), @@comp_last.get(lab));
+    END;
+  END;
+  FOREACH c IN @@out DO
+    @@members += (c.label -> @@comp_cards.get(c.label));
+    @@devices += (c.label -> @@comp_devices.get(c.label));
+  END;
+  PRINT it AS iterations, D.size() AS specific_devices_in_window, @@out AS components, @@members AS component_cards,
+        @@devices AS component_devices;
+}

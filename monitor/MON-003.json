@@ -1,0 +1,192 @@
+{
+  "trigger": {
+    "case_id": "MON-003",
+    "opened_at": "2016-12-21 19:56:58",
+    "trigger_type": "analyst_request",
+    "trigger_text": "Autonomous monitor: 6 cards share 2 unusual device profile(s) between 2016-12-20 and 2017-01-03 (14% New-to-account, 0% behind a proxy). Review transaction 3562068 on card C13190-K2.",
+    "flagged_txn_id": "3562068",
+    "card_id": "C13190-K2",
+    "customer_id": "C13190",
+    "risk_score": ""
+  },
+  "case_id": "MON-003",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.97,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3562068"
+    ],
+    "first_suspicious_txn_id": "3562068",
+    "connected_card_ids": [
+      "C01519-K1",
+      "C02222-K1",
+      "C04367-K1",
+      "C06224-K2",
+      "C07146-K1",
+      "C12418-K1",
+      "C13303-K1"
+    ],
+    "connected_device_profiles": [
+      "MacOS | Mac OS X 10_9_5 | chrome 66.0 | 1280x800",
+      "iOS Device | iOS 10.0.2 | mobile safari 10.0 | 1136x640"
+    ],
+    "exposure_usd": 199.93,
+    "evidence": [
+      {
+        "claim": "Device profile 'MacOS | Mac OS X 10_9_5 | chrome 66.0 | 1280x800' (seen on only 6 cards in six months) was used by 4 other card(s) between 2016-12-19 and 2016-12-25, at amounts close to $199.93; 4 of them marked New or scored high",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id, -14d/+7d)",
+        "entity_ids": [
+          "C07146-K1",
+          "C13303-K1",
+          "C02222-K1",
+          "C06224-K2"
+        ]
+      },
+      {
+        "claim": "Connected-components scan over cardholders and specific device profiles (2016-12-11 to 2016-12-31) puts this card in a group of 8 cards and 8 cardholders joined by 2 device profile(s): 16 transactions, $3,949.84, 19% on a device New to the account, 0% behind a proxy",
+        "source": "graph",
+        "ref": "query:device_ring(seed_device, +/-14d)",
+        "entity_ids": [
+          "C01519-K1",
+          "C02222-K1",
+          "C04367-K1",
+          "C06224-K2",
+          "C07146-K1",
+          "C12418-K1",
+          "C13190-K2",
+          "C13303-K1"
+        ]
+      },
+      {
+        "claim": "Analyst flagged purchases from the same unusual device profile on several cards",
+        "source": "external",
+        "ref": "trigger:analyst_request",
+        "entity_ids": [
+          "3562068"
+        ]
+      },
+      {
+        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly card_not_present_fraud) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
+        "source": "graph",
+        "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
+        "entity_ids": [
+          "CC-3667",
+          "CC-1356",
+          "CC-3621",
+          "CC-1987",
+          "CC-3654",
+          "CC-0263",
+          "CC-1144",
+          "CC-1068"
+        ]
+      },
+      {
+        "claim": "The card has 2 earlier confirmed-fraud case(s) (most recent CC-5518, card_not_present_new_device), none involving this cardholder's transactions",
+        "source": "graph",
+        "ref": "query:prior_cases(card_id=C13190-K2)",
+        "entity_ids": [
+          "CC-5518",
+          "CC-0747"
+        ]
+      },
+      {
+        "claim": "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3562068 at 0.63; the bank's risk score is 0.04. Both are inputs, not a verdict",
+        "source": "graph",
+        "ref": "attr:Transaction(3562068).model_prob,risk_score",
+        "entity_ids": [
+          "3562068"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-3667",
+      "CC-1356",
+      "CC-3621",
+      "CC-1987",
+      "CC-3654",
+      "CC-0066"
+    ],
+    "summary": "Investigation into card C13190-K2 following an analyst alert for shared device profiles. Transaction 3562068 for $199.93 on 2016-12-21 was conducted via a MacOS device profile shared with four other cards in a one-week window. A broader scan identified a cluster of 8 cardholders and 16 transactions totaling $3,949.84 linked by two specific device profiles. Given the coordination and similarity to prior confirmed fraud cases like CC-3667, the activity is classified as card-not-present fraud.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-M003"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability >= 0.85 on independent evidence (section 6); exposure $199.93 <= $2,500 so route L1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: 7 other card(s) share the 2 device profiles"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "File: the activity connects to a shared 2 device profiles and other cards (section 3a, R6, R2)."
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability >= 0.85 on independent evidence (section 6); exposure $199.93 <= $2,500 so route L1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: 7 other card(s) share the 2 device profiles"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "File: the activity connects to a shared 2 device profiles and other cards (section 3a, R6, R2)."
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "File: the activity connects to a shared 2 device profiles and other cards (section 3a, R6, R2).",
+    "narrative": "Between 2016-12-11 and 2016-12-31, a coordinated series of 16 online transactions totaling $3,949.84 was identified across 8 cardholders. On 2016-12-21, card C13190-K2 was used for a $199.93 purchase (ID 3562068) using a MacOS device profile. This specific device profile was also used by four other cards, including C01519-K1 and C02222-K1, to attempt similar amounts between 2016-12-19 and 2016-12-25. A connected-components scan revealed that these cardholders were further linked by a second shared device, an iOS profile. The MacOS device profile was seen on only 6 cards in six months, yet 4 of those cards showed high-risk activity within a single week. This pattern of multiple unrelated cardholders sharing the same hardware for online purchases is highly suspicious. Similar activity involving shared device profiles was previously confirmed as fraud in cases CC-3667 and CC-1356. The bank has blocked card C13190-K2 and placed connected cards under monitoring to prevent further loss. This report is filed because the activity connects to a shared device profile and coordinated abuse across multiple accounts.",
+    "subjects": [
+      "C13190",
+      "C13190-K2",
+      "C01519-K1",
+      "C02222-K1",
+      "C04367-K1",
+      "C06224-K2",
+      "C07146-K1",
+      "C12418-K1",
+      "C13303-K1",
+      "MacOS | Mac OS X 10_9_5 | chrome 66.0 | 1280x800",
+      "iOS Device | iOS 10.0.2 | mobile safari 10.0 | 1136x640"
+    ],
+    "total_amount_usd": 199.93,
+    "activity_dates": [
+      "2016-12-21",
+      "2016-12-21"
+    ]
+  },
+  "stop_reason": "Per policy R2 and R6, the card was blocked and a report filed because the transaction connects to a shared device profile and other cards' fraud.",
+  "tool_calls": 12,
+  "tokens": 7062,
+  "latency_s": 24.2
+}

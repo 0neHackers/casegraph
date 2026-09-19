@@ -1,0 +1,121 @@
+{
+  "case_id": "HHG-010",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.04,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Customer confirmed the activity when asked (simulated reply; see evidence_requests)",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 0 were confirmed fraud and 8 were cleared (history base rate: 84% of closed cases are fraud)",
+        "source": "graph",
+        "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
+        "entity_ids": [
+          "CC-0987",
+          "CC-1065",
+          "CC-0931",
+          "CC-0769",
+          "CC-1824",
+          "CC-2041",
+          "CC-4282",
+          "CC-1321"
+        ]
+      },
+      {
+        "claim": "Identity record marks the device New for this account and it has never been seen on this cardholder or card",
+        "source": "graph",
+        "ref": "query:txn_context(txn_id=3506725)",
+        "entity_ids": [
+          "3506725",
+          "Windows | Windows 10 | edge 16.0 | 1366x768"
+        ]
+      },
+      {
+        "claim": "$1,000.03 is 7.6x the card's average ($131.25) and larger than all but 0 earlier purchases",
+        "source": "graph",
+        "ref": "query:behaviour_profile(card=C10434-K1)",
+        "entity_ids": [
+          "C10434-K1",
+          "3506725"
+        ]
+      },
+      {
+        "claim": "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3506725 at 0.02; the bank's risk score is 0.90. Both are inputs, not a verdict",
+        "source": "graph",
+        "ref": "attr:Transaction(3506725).model_prob,risk_score",
+        "entity_ids": [
+          "3506725"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0987",
+      "CC-1065",
+      "CC-0931",
+      "CC-0769",
+      "CC-1824",
+      "CC-0831"
+    ],
+    "summary": "Transaction 3506725 for $1,000.03 on card C10434-K1 was flagged due to a risk score of 0.90 and the use of a new device profile. While the transaction was 7.6x the card's average, the case-memory model estimated a low fraud probability of 0.02. Historical data from similar cases, such as CC-0987 and CC-1065, showed that high-scoring transactions in this profile often involve legitimate travel or new devices. The customer confirmed the purchase and the new device, leading to the case being cleared.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-010"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 7,
+      "assumed_response": "Customer confirms the purchase and that they are using a new device; device added to profile"
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: the alert rests on the risk score alone (0.90) and the graph evidence contradicts it (p=0.04); confirm with the cardholder, as the bank did for every cleared alert in its history, then close"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a: evidence is being requested, which opens a case"
+      }
+    ],
+    "final": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "R3: customer confirmed the transaction"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: customer confirmed the transaction"
+      }
+    ],
+    "what_changed": "The initial action was to verify the transaction due to the high risk score; the final action is to allow it because the customer confirmed the activity."
+  },
+  "sar": {
+    "file": false,
+    "reason": "No report: fraud is not confirmed or strongly suspected (section 3a).",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Per policy section 6, R1 was applied to verify the transaction before blocking, and the case was closed after the customer confirmed the activity as legitimate.",
+  "tool_calls": 11,
+  "tokens": 4190,
+  "latency_s": 54.1
+}

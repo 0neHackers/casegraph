@@ -1,0 +1,143 @@
+{
+  "case_id": "HHG-018",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.93,
+    "pattern": "out_of_region_use",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3484403",
+      "3485990",
+      "3491361"
+    ],
+    "first_suspicious_txn_id": "3484403",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 124.08,
+    "evidence": [
+      {
+        "claim": "Customer denied the activity when asked (simulated reply; see evidence_requests)",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "This cardholder already had confirmed fraud in the last 120 days: CC-4942 (out_of_region_use), CC-4721 (out_of_region_use), CC-4436 (out_of_region_use), CC-3537 (out_of_region_use)",
+        "source": "graph",
+        "ref": "query:prior_cases(holder=C02354-K2|126|-185)",
+        "entity_ids": [
+          "CC-4942",
+          "CC-4721",
+          "CC-4436",
+          "CC-3537",
+          "CC-2589",
+          "CC-1450"
+        ]
+      },
+      {
+        "claim": "Customer states they did not make the purchase",
+        "source": "customer",
+        "ref": "trigger:customer_report",
+        "entity_ids": [
+          "C02354",
+          "3491361"
+        ]
+      },
+      {
+        "claim": "The card has 565 earlier purchases in billing region 126 (first on 2016-07-02); the region is not new",
+        "source": "graph",
+        "ref": "query:region_context(card_id=C02354-K2, region=126)",
+        "entity_ids": [
+          "C02354-K2",
+          "126"
+        ]
+      },
+      {
+        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly out_of_region_use) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
+        "source": "graph",
+        "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
+        "entity_ids": [
+          "CC-1222",
+          "CC-2510",
+          "CC-4938",
+          "CC-0140",
+          "CC-4441",
+          "CC-1574",
+          "CC-0645",
+          "CC-2209"
+        ]
+      },
+      {
+        "claim": "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3491361 at 0.10; the bank's risk score is 0.48. Both are inputs, not a verdict",
+        "source": "graph",
+        "ref": "attr:Transaction(3491361).model_prob,risk_score",
+        "entity_ids": [
+          "3491361"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-4942",
+      "CC-4721",
+      "CC-4436",
+      "CC-3537",
+      "CC-2589",
+      "CC-1450"
+    ],
+    "summary": "Investigation HHG-018 was initiated following a customer report from C02354 denying transaction 3491361 ($39.08) on card C02354-K2. The transaction occurred in-person in billing region 126 on 2016-11-27. Although the card has a history of purchases in region 126, the customer confirmed they did not make this purchase, still possess the card, and have not authorized others to use it. This cardholder has experienced four other confirmed out-of-region fraud episodes in the last 120 days (CC-4942, CC-4721, CC-4436, and CC-3537). Based on the customer's denial and prior fraud history, the transaction is confirmed as fraud under the out_of_region_use pattern.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-018"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 7,
+      "assumed_response": "Customer confirms they did not make the purchase(s), still has the card, and no one else uses it"
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R2 precondition: confirm the unauthorised use (card in possession, no household use) before blocking"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a: fraud probability >= 0.30 or evidence requested"
+      },
+      {
+        "action": "MONITOR_CARD",
+        "route": "auto",
+        "reason": "R1: keep the card active but watched while the dispute is verified"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: customer denies the transaction; exposure $124.08 <= $2,500 so route L1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
+      }
+    ],
+    "what_changed": "The initial actions were to verify with the customer and monitor the card, but upon the customer's explicit denial of the transaction, the final action was escalated to block the card and create a case."
+  },
+  "sar": {
+    "file": false,
+    "reason": "Case only, no report: exposure $124.08 is under $1,000, no shared device, region cluster or link to another customer's fraud, and the pattern is documented (section 3a).",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Per policy section 6, a regulatory report is not required because the total exposure of $124.08 is below the $1,000 threshold, and there is no connection to a shared device profile or another card's fraud.",
+  "tool_calls": 11,
+  "tokens": 5256,
+  "latency_s": 51.0
+}

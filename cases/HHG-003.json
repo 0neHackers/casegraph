@@ -1,0 +1,133 @@
+{
+  "case_id": "HHG-003",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.04,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Customer confirmed the activity when asked (simulated reply; see evidence_requests)",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Customer states they did not make the purchase",
+        "source": "customer",
+        "ref": "trigger:customer_report",
+        "entity_ids": [
+          "C08623",
+          "3530164"
+        ]
+      },
+      {
+        "claim": "The card has 42 earlier purchases in billing region 330 (first on 2016-07-09); the region is not new",
+        "source": "graph",
+        "ref": "query:region_context(card_id=C08623-K2, region=330)",
+        "entity_ids": [
+          "C08623-K2",
+          "330"
+        ]
+      },
+      {
+        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly out_of_region_use) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
+        "source": "graph",
+        "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
+        "entity_ids": [
+          "CC-0341",
+          "CC-5407",
+          "CC-4957",
+          "CC-1502",
+          "CC-2218",
+          "CC-4755",
+          "CC-1787",
+          "CC-3948"
+        ]
+      },
+      {
+        "claim": "The card has 5 earlier confirmed-fraud case(s) (most recent CC-4957, out_of_region_use), none involving this cardholder's transactions",
+        "source": "graph",
+        "ref": "query:prior_cases(card_id=C08623-K2)",
+        "entity_ids": [
+          "CC-4957",
+          "CC-3682",
+          "CC-3327",
+          "CC-2935",
+          "CC-2817"
+        ]
+      },
+      {
+        "claim": "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3530164 at 0.02; the bank's risk score is 0.40. Both are inputs, not a verdict",
+        "source": "graph",
+        "ref": "attr:Transaction(3530164).model_prob,risk_score",
+        "entity_ids": [
+          "3530164"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0341",
+      "CC-5407",
+      "CC-4957",
+      "CC-1502",
+      "CC-2218",
+      "CC-4971"
+    ],
+    "summary": "Customer C08623 initially disputed an in-person transaction of $49.00 (ID 3530164) on card C08623-K2, claiming it was unauthorized. Investigation revealed the transaction occurred in billing region 330, where the cardholder has a established history of 42 purchases dating back to July 2016. Risk models indicated low fraud probability, with scores of 0.40 and 0.02. Upon further verification, the customer recognized the transaction as a household purchase and withdrew the dispute.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-003"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 9,
+      "assumed_response": "On review of the merchant and date, the customer recognises the purchase (a household/own purchase) and withdraws the dispute"
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: the graph contradicts the dispute; check the details with the customer before closing"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a: every customer dispute opens a case"
+      }
+    ],
+    "final": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Section 3a: the customer disputed a charge, so a case records the outcome"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: customer confirmed the transaction"
+      }
+    ],
+    "what_changed": "The case was initially opened as a potential fraud report, but the verdict was updated to legitimate after the customer confirmed the transaction was their own."
+  },
+  "sar": {
+    "file": false,
+    "reason": "No report: fraud is not confirmed or strongly suspected (section 3a).",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Per policy R1, the transaction was verified with the customer; the case is closed as the customer confirmed the activity and withdrew the dispute.",
+  "tool_calls": 13,
+  "tokens": 4918,
+  "latency_s": 31.0
+}
