@@ -15,7 +15,7 @@
       "title": "flagged transaction in context",
       "detail": "$111.92 in_person product W on C09933-K2 at 2016-12-05 00:46:14; holder C09933-K2|264|50; device none; region 264",
       "data": null,
-      "t": 0.31
+      "t": 0.63
     },
     {
       "step": 3,
@@ -23,89 +23,182 @@
       "title": "core evidence gathered",
       "detail": "6 graph calls so far",
       "data": null,
-      "t": 1.88
+      "t": 2.3
     },
     {
       "step": 4,
       "kind": "plan",
       "title": "LLM planner (gemini-3.5-flash) -> prior_cases",
-      "detail": "Check the 19 prior closed cases linked to this card to see if they are related to this card or holder.",
+      "detail": "Check the 19 prior closed cases linked to this card to understand the fraud history.",
       "data": {
         "card_id": "C09933-K2"
       },
-      "t": 35.85
+      "t": 21.89
     },
     {
       "step": 5,
-      "kind": "memory",
-      "title": "similar cases recalled",
-      "detail": "fingerprint top: ['CC-4257', 'CC-3686', 'CC-0057', 'CC-4729', 'CC-3912']; narrative top: ['CC-1115', 'CC-0445', 'CC-1095']; agent cases: ['HHG-001', 'HHG-010', 'HHG-015']",
-      "data": null,
-      "t": 36.94
+      "kind": "plan",
+      "title": "LLM planner (gemini-3.5-flash) -> card_window",
+      "detail": "Examine the transactions around the flagged transaction to see if there is a pattern of fraud or if it is normal spending.",
+      "data": {
+        "hours_before": 72,
+        "card_id": "C09933-K2",
+        "hours_after": 24,
+        "at": "2016-12-05 00:46:14"
+      },
+      "t": 22.14
     },
     {
       "step": 6,
+      "kind": "memory",
+      "title": "similar cases recalled",
+      "detail": "fingerprint top: ['CC-4257', 'CC-3686', 'CC-0057', 'CC-4729', 'CC-3912']; narrative top: ['CC-1115', 'CC-0445', 'CC-1095']; agent cases: ['HHG-001', 'HHG-002', 'HHG-018']",
+      "data": null,
+      "t": 23.16
+    },
+    {
+      "step": 7,
       "kind": "assess",
       "title": "initial assessment: p=0.41, pattern account_takeover",
       "detail": "1 independent evidence line(s); single-signal=True; exposure $111.92",
       "data": null,
-      "t": 36.94
+      "t": 23.16
     },
     {
-      "step": 7,
+      "step": 8,
       "kind": "decide",
       "title": "initial next-best-action",
       "detail": "VERIFY_WITH_CUSTOMER, CREATE_CASE, MONITOR_CARD",
       "data": null,
-      "t": 36.94
+      "t": 23.16
     },
     {
-      "step": 8,
+      "step": 9,
+      "kind": "action",
+      "title": "initial: executed 3, awaiting approval 0",
+      "detail": "executed: VERIFY_WITH_CUSTOMER, CREATE_CASE, MONITOR_CARD | awaiting approval: -",
+      "data": [
+        {
+          "stage": "initial",
+          "action": "VERIFY_WITH_CUSTOMER",
+          "route": "auto",
+          "status": "executed",
+          "system": "notification-service",
+          "detail": "verification request sent (app push + SMS)",
+          "ref": "NOTIFICATION-199a561f"
+        },
+        {
+          "stage": "initial",
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "status": "executed",
+          "system": "case-system",
+          "detail": "case opened and written to TigerGraph",
+          "ref": "CASE-8cbc2ba8"
+        },
+        {
+          "stage": "initial",
+          "action": "MONITOR_CARD",
+          "route": "auto",
+          "status": "executed",
+          "system": "risk-engine",
+          "detail": "card sensitivity raised for 72 hours",
+          "ref": "RISK-93ca0d60"
+        }
+      ],
+      "t": 23.16
+    },
+    {
+      "step": 10,
       "kind": "request",
       "title": "evidence requested: customer_validation",
       "detail": "probability 0.41: verification requested (R1)",
       "data": null,
-      "t": 36.94
+      "t": 23.42
     },
     {
-      "step": 9,
+      "step": 11,
       "kind": "response",
       "title": "assumed response recorded",
       "detail": "No reply from the customer within 24 hours",
       "data": null,
-      "t": 36.94
+      "t": 23.42
     },
     {
-      "step": 10,
+      "step": 12,
+      "kind": "request",
+      "title": "evidence requested: analyst_info",
+      "detail": "customer did not settle it; ask an analyst for merchant/terminal records (policy section 5)",
+      "data": null,
+      "t": 23.42
+    },
+    {
+      "step": 13,
       "kind": "assess",
       "title": "re-assessment: p=0.41 -> verdict uncertain",
       "detail": "pattern account_takeover",
       "data": null,
-      "t": 36.94
+      "t": 23.42
     },
     {
-      "step": 11,
+      "step": 14,
       "kind": "decide",
       "title": "final next-best-action",
       "detail": "DECLINE_TRANSACTION, CREATE_CASE, MONITOR_CARD",
       "data": null,
-      "t": 36.94
+      "t": 23.42
     },
     {
-      "step": 12,
+      "step": 15,
+      "kind": "action",
+      "title": "final: executed 2, awaiting approval 1",
+      "detail": "executed: CREATE_CASE, MONITOR_CARD | awaiting approval: DECLINE_TRANSACTION (L1)",
+      "data": [
+        {
+          "stage": "final",
+          "action": "DECLINE_TRANSACTION",
+          "route": "L1",
+          "status": "pending_approval",
+          "system": "approval-queue",
+          "detail": "awaiting team lead (L1)",
+          "ref": "APR-7e70a253"
+        },
+        {
+          "stage": "final",
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "status": "executed",
+          "system": "case-system",
+          "detail": "case opened and written to TigerGraph",
+          "ref": "CASE-07c99cb1"
+        },
+        {
+          "stage": "final",
+          "action": "MONITOR_CARD",
+          "route": "auto",
+          "status": "executed",
+          "system": "risk-engine",
+          "detail": "card sensitivity raised for 72 hours",
+          "ref": "RISK-a767e95b"
+        }
+      ],
+      "t": 23.42
+    },
+    {
+      "step": 16,
       "kind": "write",
       "title": "case text written by the LLM (gemini-3.5-flash) from graph evidence + retrieved context",
       "detail": "9 retrieved passages",
       "data": null,
-      "t": 55.71
+      "t": 36.11
     },
     {
-      "step": 13,
+      "step": 17,
       "kind": "memory",
       "title": "case written to the graph",
       "detail": "CASE-2016-007 + events, links and vectors",
       "data": null,
-      "t": 62.06
+      "t": 42.61
     }
   ],
   "facts": {
@@ -157,8 +250,13 @@
     "evidence_requests": [
       {
         "type": "customer_validation",
-        "asked_after_step": 7,
+        "asked_after_step": 9,
         "assumed_response": "No reply from the customer within 24 hours"
+      },
+      {
+        "type": "analyst_info",
+        "asked_after_step": 11,
+        "assumed_response": "Analyst acknowledged the request for merchant / terminal records; review pending, no additional facts within the investigation window"
       }
     ],
     "initial_actions": [
@@ -182,6 +280,62 @@
       "CC-0057"
     ]
   },
+  "actions": [
+    {
+      "stage": "initial",
+      "action": "VERIFY_WITH_CUSTOMER",
+      "route": "auto",
+      "status": "executed",
+      "system": "notification-service",
+      "detail": "verification request sent (app push + SMS)",
+      "ref": "NOTIFICATION-199a561f"
+    },
+    {
+      "stage": "initial",
+      "action": "CREATE_CASE",
+      "route": "auto",
+      "status": "executed",
+      "system": "case-system",
+      "detail": "case opened and written to TigerGraph",
+      "ref": "CASE-8cbc2ba8"
+    },
+    {
+      "stage": "initial",
+      "action": "MONITOR_CARD",
+      "route": "auto",
+      "status": "executed",
+      "system": "risk-engine",
+      "detail": "card sensitivity raised for 72 hours",
+      "ref": "RISK-93ca0d60"
+    },
+    {
+      "stage": "final",
+      "action": "DECLINE_TRANSACTION",
+      "route": "L1",
+      "status": "pending_approval",
+      "system": "approval-queue",
+      "detail": "awaiting team lead (L1)",
+      "ref": "APR-7e70a253"
+    },
+    {
+      "stage": "final",
+      "action": "CREATE_CASE",
+      "route": "auto",
+      "status": "executed",
+      "system": "case-system",
+      "detail": "case opened and written to TigerGraph",
+      "ref": "CASE-07c99cb1"
+    },
+    {
+      "stage": "final",
+      "action": "MONITOR_CARD",
+      "route": "auto",
+      "status": "executed",
+      "system": "risk-engine",
+      "detail": "card sensitivity raised for 72 hours",
+      "ref": "RISK-a767e95b"
+    }
+  ],
   "tool_calls": [
     {
       "step": 1,
@@ -189,7 +343,7 @@
       "args": {
         "txn_id": "3514948"
       },
-      "latency_s": 0.311,
+      "latency_s": 0.327,
       "transport": "mcp",
       "digest": "txn 3514948",
       "why": "open the flagged transaction and its neighbours"
@@ -207,7 +361,7 @@
         "product": "W",
         "amount": 111.92
       },
-      "latency_s": 0.267,
+      "latency_s": 0.284,
       "transport": "mcp",
       "digest": "card n=2431 holder n=11",
       "why": "what is normal for this card and this cardholder"
@@ -220,7 +374,7 @@
         "t0": "2016-12-02 00:46:14",
         "t1": "2016-12-06 00:46:14"
       },
-      "latency_s": 0.48,
+      "latency_s": 0.513,
       "transport": "mcp",
       "digest": "62 txns on C09933-K2",
       "why": "activity on the card around the alert"
@@ -234,7 +388,7 @@
         "device_id": "",
         "before_ts": "2016-12-05 00:46:14"
       },
-      "latency_s": 0.264,
+      "latency_s": 0.283,
       "transport": "mcp",
       "digest": "19 closed, 0 agent cases",
       "why": "case memory linked by card, holder, device"
@@ -248,7 +402,7 @@
         "at_ts": "2016-12-05 00:46:14",
         "window_h": 72
       },
-      "latency_s": 0.285,
+      "latency_s": 0.3,
       "transport": "mcp",
       "digest": "prior in region=2220",
       "why": "has this card been billed in this region before"
@@ -264,7 +418,7 @@
         "amount": 111.92,
         "before_ts": "2016-12-05 00:46:14"
       },
-      "latency_s": 0.275,
+      "latency_s": 0.281,
       "transport": "mcp",
       "digest": "0 holder / 6 card repeats",
       "why": "is this a repeating payment of the cardholder (R7)"
@@ -278,13 +432,26 @@
         "device_id": "",
         "before_ts": "2016-12-05 00:46:14"
       },
-      "latency_s": 0.791,
+      "latency_s": 1.017,
       "transport": "mcp",
       "digest": "19 closed, 0 agent cases",
-      "why": "Check the 19 prior closed cases linked to this card to see if they are related to this card or holder."
+      "why": "Check the 19 prior closed cases linked to this card to understand the fraud history."
     },
     {
       "step": 4,
+      "tool": "card_window",
+      "args": {
+        "card_id": "C09933-K2",
+        "t0": "2016-12-02 00:46:14",
+        "t1": "2016-12-06 00:46:14"
+      },
+      "latency_s": 0.254,
+      "transport": "mcp",
+      "digest": "62 txns on C09933-K2",
+      "why": "Examine the transactions around the flagged transaction to see if there is a pattern of fraud or if it is normal spending."
+    },
+    {
+      "step": 5,
       "tool": "similar_cases_fp",
       "args": {
         "qv": [
@@ -307,13 +474,13 @@
         ],
         "k": 12
       },
-      "latency_s": 0.287,
+      "latency_s": 0.247,
       "transport": "mcp",
       "digest": "12 by fingerprint",
       "why": "closed episodes with the same behavioural shape"
     },
     {
-      "step": 4,
+      "step": 5,
       "tool": "similar_cases_text",
       "args": {
         "qv": [
@@ -704,13 +871,13 @@
         ],
         "k": 6
       },
-      "latency_s": 0.273,
+      "latency_s": 0.251,
       "transport": "mcp",
       "digest": "6 by narrative",
       "why": "closed cases with a similar narrative"
     },
     {
-      "step": 4,
+      "step": 5,
       "tool": "similar_agent_cases",
       "args": {
         "qv": [
@@ -739,7 +906,7 @@
       "why": "the agent's own earlier cases with the same shape"
     },
     {
-      "step": 4,
+      "step": 5,
       "tool": "search_knowledge",
       "args": {
         "qv": [

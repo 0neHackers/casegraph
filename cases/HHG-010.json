@@ -68,14 +68,14 @@
       "CC-1824",
       "CC-0831"
     ],
-    "summary": "Transaction 3506725 for $1,000.03 on card C10434-K1 was flagged due to a risk score of 0.90 and the use of a new device profile. While the transaction was 7.6x the card's average, the case-memory model estimated a low fraud probability of 0.02. Historical data from similar cases, such as CC-0987 and CC-1065, showed that high-scoring transactions in this profile often involve legitimate travel or new devices. The customer confirmed the purchase and the new device, leading to the case being cleared.",
+    "summary": "Case HHG-010 was opened following a risk score of 0.90 on transaction 3506725 for $1,000.03 on card C10434-K1. The transaction was flagged as suspicious because it was 7.6x the card's average purchase amount and conducted via a new device. Following R1, the initial action was to verify with the customer since the assessed fraud probability was only 0.04. The customer confirmed the transaction and the new device, so the final action was to allow the transaction and close the case.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-010"
   },
   "evidence_requests": [
     {
       "type": "customer_validation",
-      "asked_after_step": 7,
+      "asked_after_step": 8,
       "assumed_response": "Customer confirms the purchase and that they are using a new device; device added to profile"
     }
   ],
@@ -104,7 +104,7 @@
         "reason": "R3: customer confirmed the transaction"
       }
     ],
-    "what_changed": "The initial action was to verify the transaction due to the high risk score; the final action is to allow it because the customer confirmed the activity."
+    "what_changed": "The recommendation changed from verification to allowing the transaction and closing the case after the customer confirmed the transaction was legitimate."
   },
   "sar": {
     "file": false,
@@ -114,8 +114,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Per policy section 6, R1 was applied to verify the transaction before blocking, and the case was closed after the customer confirmed the activity as legitimate.",
+  "stop_reason": "Under policy section 6, the investigation is concluded and the case closed because the customer confirmed the transaction and the new device, leaving no unresolved fraud signals.",
   "tool_calls": 11,
-  "tokens": 4190,
-  "latency_s": 54.1
+  "tokens": 5290,
+  "latency_s": 85.2
 }

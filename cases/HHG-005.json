@@ -69,19 +69,19 @@
       "CC-3036",
       "CC-1008"
     ],
-    "summary": "This case was triggered by a real-time model risk score of 0.54 on transaction 3523199 ($100.07, online) on card C02923-K1, executed from a new iOS device on 2016-12-07. Initial actions included STEP_UP_AUTH and VERIFY_WITH_CUSTOMER due to the unrecognized device. The cardholder successfully completed the step-up authentication and confirmed the transaction was legitimate, stating they were using a new device. Consequently, the transaction was allowed, the device was added to the profile, and the case was closed as legitimate.",
+    "summary": "Case HHG-005 was initiated after transaction 3523199 for $100.07 on card C02923-K1 triggered a risk score of 0.54. The online transaction occurred on 2016-12-07 21:38:37 from a new iOS device not previously associated with the account. Upon verification, the cardholder successfully completed step-up authentication and confirmed the purchase. The transaction was deemed legitimate, and the device was added to the customer's profile.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-005"
   },
   "evidence_requests": [
     {
       "type": "customer_validation",
-      "asked_after_step": 7,
+      "asked_after_step": 8,
       "assumed_response": "Customer confirms the purchase and that they are using a new device; device added to profile"
     },
     {
       "type": "step_up_auth",
-      "asked_after_step": 7,
+      "asked_after_step": 8,
       "assumed_response": "Cardholder completed the one-time passcode on their registered phone"
     }
   ],
@@ -120,7 +120,7 @@
         "reason": "R3: customer confirmed the transaction"
       }
     ],
-    "what_changed": "The initial recommendation was to verify the transaction and monitor the card due to the unrecognized device. The final recommendation changed to allowing the transaction and closing the case because the customer successfully completed step-up authentication and confirmed the purchase."
+    "what_changed": "The initial recommendation was to verify the transaction and monitor the card due to the risk score and new device. The final recommendation changed to allowing the transaction and closing the case after the customer successfully completed step-up authentication and confirmed the purchase."
   },
   "sar": {
     "file": false,
@@ -130,8 +130,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "In accordance with policy section 6, the investigation is stopped and the case closed as no fraud because the cardholder successfully validated their identity via step-up authentication and confirmed the transaction.",
+  "stop_reason": "In accordance with policy section 6, the investigation is stopped and the alert cleared because the cardholder successfully completed step-up authentication and confirmed the transaction as legitimate.",
   "tool_calls": 11,
-  "tokens": 5970,
-  "latency_s": 42.0
+  "tokens": 5253,
+  "latency_s": 28.6
 }

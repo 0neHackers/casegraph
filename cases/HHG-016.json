@@ -70,7 +70,7 @@
       "CC-2820",
       "CC-3635"
     ],
-    "summary": "Customer C09988 reported an unauthorized online transaction of $59.67 on card C09988-K1 on 2016-12-11. The transaction (ID 3534820) was conducted via a new device (Windows/Edge 16.0) never before seen on the account. Upon verification, the customer confirmed they did not authorize the purchase and still possess the card. Similar historical cases, such as CC-3353 and CC-3356, also involved new devices and were confirmed as fraud. Consequently, the card has been blocked to prevent further exposure.",
+    "summary": "Investigation HHG-016 was initiated following a customer report from C09988 denying an online transaction of $59.67 on card C09988-K1 on 2016-12-11. The transaction (ID 3534820) was conducted via a new Windows device with Edge 16.0, which has never been associated with this cardholder. The customer confirmed they did not authorize the transaction, still possess the card, and do not share it. Based on the customer's denial and similar prior fraud cases (such as CC-3353 and CC-3356), the transaction is confirmed as fraud under the card_not_present_new_device pattern.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-016"
   },
@@ -111,7 +111,7 @@
         "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
       }
     ],
-    "what_changed": "The initial recommendation was to verify the transaction with the customer and monitor the card; however, the final action was upgraded to blocking the card after the customer explicitly denied the activity."
+    "what_changed": "The initial recommendation was to verify with the customer and monitor the card. Upon the customer's explicit denial of the transaction, the final action was escalated to blocking the card and creating a case under policy rule R2."
   },
   "sar": {
     "file": false,
@@ -121,8 +121,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Per policy R2, when a customer denies a transaction, the card must be blocked and a case created.",
-  "tool_calls": 12,
-  "tokens": 67089,
-  "latency_s": 203.2
+  "stop_reason": "Pursuant to policy section 6, no regulatory report is required because the total exposure of $59.67 is below the $1,000 threshold, and there are no shared device profiles or links to other fraudulent accounts.",
+  "tool_calls": 11,
+  "tokens": 5841,
+  "latency_s": 33.6
 }

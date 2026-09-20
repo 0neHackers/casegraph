@@ -86,19 +86,19 @@
       "CC-3036",
       "CC-1272"
     ],
-    "summary": "Case HHG-020 was opened when online transaction 3509359 for $125.08 on card C12265-K2 (customer C12265) was flagged with a risk score of 0.52 due to an unrecognized device profile. Following step-up authentication and customer verification, cardholder C12265 validated the transaction and confirmed the new device via one-time passcode. With the activity verified as legitimate, the transaction was allowed and the alert was cleared.",
+    "summary": "On 2016-12-03 06:04:26, transaction 3509359 for $125.08 on card C12265-K2 was flagged due to a risk score of 0.52 associated with an unrecognized device profile (Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080). Initial actions included issuing step-up authentication, verifying the purchase with customer C12265, opening a case, and placing card C12265-K2 under monitoring. The cardholder successfully completed the one-time passcode challenge and confirmed making the purchase on a new device. Consequently, the transaction was allowed, the new device was added to the user's profile, and the alert was cleared as legitimate activity.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-020"
   },
   "evidence_requests": [
     {
       "type": "customer_validation",
-      "asked_after_step": 8,
+      "asked_after_step": 9,
       "assumed_response": "Customer confirms the purchase and that they are using a new device; device added to profile"
     },
     {
       "type": "step_up_auth",
-      "asked_after_step": 8,
+      "asked_after_step": 9,
       "assumed_response": "Cardholder completed the one-time passcode on their registered phone"
     }
   ],
@@ -137,7 +137,7 @@
         "reason": "R3: customer confirmed the transaction"
       }
     ],
-    "what_changed": "Initial recommendations required customer verification and monitoring due to the novel device, but upon the cardholder successfully completing step-up authentication and confirming the purchase, the final action changed to allowing the transaction and closing the case without fraud."
+    "what_changed": "Actions changed from step-up authentication, customer verification, case creation, and card monitoring to allowing the transaction and closing the case with no fraud after cardholder C12265 passed the one-time passcode check and confirmed the purchase."
   },
   "sar": {
     "file": false,
@@ -147,8 +147,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Investigation concluded pursuant to fraud policy section 6 as positive cardholder verification and step-up authentication resolved the alert with no confirmed fraud.",
+  "stop_reason": "Investigation concluded under policy section 6 following positive customer verification and successful step-up authentication, which confirmed legitimate transaction activity and resolved potential exposure.",
   "tool_calls": 12,
-  "tokens": 4487,
-  "latency_s": 21.1
+  "tokens": 4845,
+  "latency_s": 19.4
 }

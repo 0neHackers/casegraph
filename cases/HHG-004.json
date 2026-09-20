@@ -28,6 +28,21 @@
         ]
       },
       {
+        "claim": "TigerGraph's Louvain community detection (GDBMS_ALGO) places this device profile in a community of 146 cardholders, 98 cards and 14 device profile(s); before this alert its cardholders produced 34 confirmed-fraud and 1 cleared closed cases (9.2x the bank-wide rate per cardholder)",
+        "source": "graph",
+        "ref": "algo:GDBMS_ALGO.community.louvain -> query:device_community(community=142606609)",
+        "entity_ids": [
+          "CC-0305",
+          "CC-0365",
+          "CC-0403",
+          "CC-0547",
+          "CC-0549",
+          "CC-0583",
+          "CC-0625",
+          "CC-0671"
+        ]
+      },
+      {
         "claim": "Identity record marks the device New for this account and it has never been seen on this cardholder or card",
         "source": "graph",
         "ref": "query:txn_context(txn_id=3583227)",
@@ -72,14 +87,14 @@
       "CC-1353",
       "CC-1287"
     ],
-    "summary": "Customer C08106 initially reported a $128.33 online transaction (ID 3583227) on card C08106-K1 as unrecognized. The transaction was flagged due to the use of a new device profile (Firefox 47.0) and a risk score of 0.34. Upon further verification, the customer identified the transaction as a household purchase and withdrew the dispute. The case-memory model scored the transaction at 0.00, and no connected fraudulent activity was identified.",
+    "summary": "Customer C08106 initially disputed a $128.33 online transaction (ID 3583227) on card C08106-K1, claiming it was unauthorized. The transaction originated from a new device profile that is linked via community detection to a high-risk cluster with a fraud rate 9.2 times the bank average. Despite the suspicious device profile and the card's history of prior fraud (CC-3778), the customer was contacted for verification. Upon review, the customer identified the transaction as a household purchase and withdrew the dispute.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-004"
   },
   "evidence_requests": [
     {
       "type": "customer_validation",
-      "asked_after_step": 9,
+      "asked_after_step": 10,
       "assumed_response": "On review of the merchant and date, the customer recognises the purchase (a household/own purchase) and withdraws the dispute"
     }
   ],
@@ -113,7 +128,7 @@
         "reason": "R3: customer confirmed the transaction"
       }
     ],
-    "what_changed": "The initial recommendation to monitor the card was updated to close the case as legitimate after the customer confirmed the transaction upon review."
+    "what_changed": "The initial suspicion based on the customer's report and high-risk device community was resolved when the customer confirmed the transaction was a legitimate household purchase."
   },
   "sar": {
     "file": false,
@@ -123,8 +138,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Per policy section 6, no further action is required as the transaction was confirmed by the cardholder and no shared origin or coordinated abuse patterns were identified.",
-  "tool_calls": 13,
-  "tokens": 4678,
-  "latency_s": 17.9
+  "stop_reason": "Per policy section 6, the investigation is closed because the cardholder confirmed the transaction was authorized, overriding the initial fraud report.",
+  "tool_calls": 14,
+  "tokens": 4641,
+  "latency_s": 21.2
 }

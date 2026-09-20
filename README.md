@@ -50,7 +50,8 @@ evidence is not enough to act, it asks for more through the controls the policy 
 Three decisions shape the design:
 
 - **The LLM reasons and writes; it does not do graph analysis and it does not choose actions.** GSQL
-  queries and a graph algorithm find the patterns. A small policy engine turns the assessment into the
+  queries and TigerGraph's graph algorithms (Louvain and WCC from `GDBMS_ALGO`, plus a windowed ring
+  query) find the patterns. A small policy engine turns the assessment into the
   policy's exact action identifiers, approval routes and report decision, and cites the rule for each.
   Gemini picks which extra graph tools to call and writes the case summary and the SAR narrative.
 - **A "customer" is not a person here.** In this data a `customer_id` is an issuer bucket that can hold
@@ -69,13 +70,14 @@ flowchart LR
     O --> G["gather<br/>GSQL via MCP"]
     G --> P{"LLM planner<br/>more tools?"}
     P -->|yes| G
-    P -->|no| A["analyse<br/>signals + ring WCC"]
+    P -->|no| A["analyse<br/>signals · ring · Louvain"]
     A --> M["recall memory<br/>graph links + TigerVector"]
     M --> U{"uncertain?<br/>policy §6"}
     U -->|"p ≥ 0.85 or ≤ 0.15<br/>2+ evidence lines"| F["final actions"]
     U -->|otherwise| R["request evidence<br/>verify · step-up"]
     R --> S["re-assess"] --> F
-    F --> W["write case text<br/>LLM + GraphRAG"]
+    F --> X["action desk<br/>auto → executed · L1/L2 → approval"]
+    X --> W["write case text<br/>LLM + GraphRAG"]
     W --> K["persist case<br/>vertices · edges · vectors"]
 ```
 
@@ -96,11 +98,11 @@ the policy (including the $2,500 `BLOCK_CARD` split), `FILE_REPORT` ⇔ `sar.fil
 | HHG-005 | risk score | legitimate | 0.04 | none | $0.00 | `STEP_UP_AUTH, VERIFY_WITH_CUSTOMER, MONITOR_CARD` → `ALLOW_TRANSACTION, CLOSE_NO_FRAUD` | — |
 | HHG-006 | customer | fraud | 0.91 | undocumented | $1,906.07 | `BLOCK_CARD, FILE_REPORT, ESCALATE_TO_ANALYST` | ✅ |
 | HHG-007 | risk score | uncertain | 0.41 | account takeover | $111.92 | `VERIFY_WITH_CUSTOMER, MONITOR_CARD` → `DECLINE_TRANSACTION, MONITOR_CARD` | — |
-| HHG-008 | customer | fraud | 0.90 | card not present fraud | $55.68 | `BLOCK_CARD` | — |
+| HHG-008 | customer | fraud | 0.88 | card not present fraud | $55.68 | `BLOCK_CARD` | — |
 | HHG-009 | customer | fraud | 0.90 | card not present fraud | $30.02 | `BLOCK_CARD` | — |
 | HHG-010 | risk score | legitimate | 0.04 | none | $0.00 | `VERIFY_WITH_CUSTOMER` → `ALLOW_TRANSACTION, CLOSE_NO_FRAUD` | — |
 | HHG-011 | customer | fraud | 0.96 | card not present new device | $131.30 | `VERIFY_WITH_CUSTOMER, MONITOR_CARD` → `BLOCK_CARD, MONITOR_CONNECTED_CARDS, FILE_REPORT` | ✅ |
-| HHG-012 | risk score | legitimate | 0.04 | none | $0.00 | `VERIFY_WITH_CUSTOMER, MONITOR_CARD` → `ALLOW_TRANSACTION, CLOSE_NO_FRAUD` | — |
+| HHG-012 | risk score | legitimate | 0.04 | none | $0.00 | `ALLOW_TRANSACTION, CLOSE_NO_FRAUD` | — |
 | HHG-013 | risk score | legitimate | 0.04 | none | $0.00 | `VERIFY_WITH_CUSTOMER` → `ALLOW_TRANSACTION, CLOSE_NO_FRAUD` | — |
 | HHG-014 | analyst | fraud | 0.97 | undocumented | $439.61 | `BLOCK_CARD, MONITOR_CONNECTED_CARDS, FILE_REPORT, ESCALATE_TO_ANALYST` | ✅ |
 | HHG-015 | risk score | legitimate | 0.04 | none | $0.00 | `VERIFY_WITH_CUSTOMER` → `ALLOW_TRANSACTION, CLOSE_NO_FRAUD` | — |
@@ -127,7 +129,7 @@ raised an alert on. Groups already covered by an exam case are skipped. On the e
 five candidate groups, skipped the one already covered by HHG-014, and opened four cases (MON-001 to MON-004),
 three of them with a report.
 
-**Cost of the run on Savanna:** 239 graph calls through MCP, 168k Gemini tokens, 15.5 minutes for all 20
+**Cost of the run on Savanna:** 241 graph calls through MCP, 106k Gemini tokens, about 14 minutes for all 20
 cases (the free-tier LLM dominates the latency; the graph queries take 10–300 ms each).
 
 Technical write-up: [`docs/blog.md`](docs/blog.md).
@@ -142,8 +144,9 @@ casegraph/
 ├── etl/prepare.py          card IDs, Holders, device profiles, NEXT ordering → vertex/edge CSVs
 ├── graph/
 │   ├── schema.gsql         13 vertex types, 26 edge types, 5 vector attributes
-│   ├── queries/*.gsql      12 installed queries (context, behaviour, window, device, region,
-│   │                       prior cases, recurring, ring WCC, 4 vector searches)
+│   ├── queries/*.gsql      13 installed queries (context, behaviour, window, device, region,
+│   │                       prior cases, recurring, ring WCC, Louvain community, 4 vector searches)
+│   ├── analytics.py        GDBMS_ALGO Louvain + WCC → louvain_id / wcc_id on the vertices
 │   └── setup.py            schema → chunked REST loading → install (same code for Savanna and CE)
 ├── rag/                    local embeddings, fingerprints, knowledge build (policy, typologies, FinCEN)
 ├── agent/
@@ -152,8 +155,9 @@ casegraph/
 │   ├── signals.py          detectors: card testing, structuring, recurring, …
 │   ├── investigator.py     the loop: gather → plan → analyse → recall → assess → act → write → persist
 │   ├── policy.py           Fraud Policy v1.0 as code: actions, routes, R1–R10, §3a report rule, §6 stop
+│   ├── actions.py          action desk: executes `auto` actions (mock systems), queues L1/L2 for approval
 │   ├── llm.py              Gemini planner (function calling) + writer (structured output)
-│   └── memory.py           write the case into the graph
+│   └── memory.py           write the case into the graph (checkpoints while open, full record at the end)
 ├── monitor.py              autonomous scan → monitor/
 ├── checks.py               answer-file validator
 └── ui/app.py               Streamlit analyst console
@@ -192,6 +196,17 @@ python -m casegraph run HHG-002 --simulate deny      # → BLOCK_CARD, CREATE_CA
 python -m casegraph run HHG-002 --simulate none      # → MONITOR_CARD, DECLINE_TRANSACTION (R4)
 ```
 
+When the evidence is thin and the customer route cannot settle it, the agent also asks the analyst
+for merchant / terminal records (`analyst_info`), which is recorded as a request with its outcome.
+
+### Acting inside the permissions
+
+`agent/actions.py` is the boundary between recommending and doing. Every plan (initial and final) goes
+through it: `auto` actions are sent to mock bank systems (risk engine, notification service, case
+system …) and come back `executed` with a reference; `L1` and `L2` actions are put on an approval queue
+as `pending_approval` for the team lead or fraud manager. There is no code path that executes an L1/L2
+action. The log is in each trace (`runs/traces/*.json → actions`) and on the console's NBA tab.
+
 ---
 
 ## How TigerGraph is used
@@ -200,11 +215,11 @@ python -m casegraph run HHG-002 --simulate none      # → MONITOR_CARD, DECLINE
 |---|---|
 | **Graph schema + loading** | `graph/schema.gsql`, `graph/setup.py`. 600k-vertex, 3.3M-edge graph, loaded over REST in 16 MB chunks, so the same command works on Savanna. |
 | **GSQL traversal** | `txn_context`, `behaviour_profile`, `card_window`, `device_neighbors`, `region_context`, `prior_cases`, `recurring_check`. Multi-hop, time-windowed, accumulator-based. |
-| **Graph algorithm** | `device_ring`: label-propagation connected components on the Holder ↔ DeviceProfile graph inside a time window, restricted to *specific* devices. Finds rings in about 0.3 s. |
+| **Graph algorithms** | TigerGraph's `GDBMS_ALGO` library: `community.louvain` and `community.wcc` run over the undirected, transaction-weighted `Holder ↔ DEVICE_LINK ↔ DeviceProfile` projection (`graph/analytics.py`, 1,245 communities) and write `louvain_id` / `wcc_id` onto the vertices. During an investigation `device_community` reads the device's community and how much confirmed fraud it has produced *before the alert* (about 0.3 s). `device_ring` adds the time-bounded view: label-propagation connected components inside the alert's window, restricted to *specific* devices. |
 | **TigerVector** | `ClosedCase.emb`, `ClosedCase.fp`, `DocChunk.emb`, `InvestigationCase.emb`, `InvestigationCase.fp`, searched with `vectorSearch()` inside GSQL. |
 | **GraphRAG** | Retrieved policy/typology/FinCEN chunks come back with their linked `Pattern` vertices; similar cases come back with their graph context; both are passed to the LLM as context, not raw rows. |
 | **TigerGraph MCP** | `tigergraph-mcp` over stdio: `run_installed_query` for every investigation step, `upsert_vectors` for the knowledge build and case vectors, `add_node` / `add_edges` for case memory. |
-| **Case memory** | `InvestigationCase` + `CaseEvent` vertices with `CASE_TXN`, `CASE_CARD`, `CASE_DEVICE`, `CASE_PATTERN`, `CASE_CITES` edges; read back by `prior_cases` and `similar_agent_cases`. |
+| **Case memory** | `InvestigationCase` + `CaseEvent` vertices with `CASE_TXN`, `CASE_CARD`, `CASE_DEVICE`, `CASE_PATTERN`, `CASE_CITES` edges; read back by `prior_cases` and `similar_agent_cases`. The case vertex is written when the case opens (`open`), updated after the first decision (`pending_customer` / `escalated` …) and finalised at the end, so its progression is visible in the graph. |
 
 ---
 
@@ -221,7 +236,7 @@ Put the dataset files (`transactions.csv`, `identity.csv`, `closed_cases_history
 `README.md`) in `data/raw/`. Then:
 
 ```bash
-bash scripts/bootstrap.sh            # ETL → schema → load → queries → knowledge → 20 cases → check
+bash scripts/bootstrap.sh            # ETL → schema → load → queries → algorithms → knowledge → 20 cases → check
 streamlit run casegraph/ui/app.py    # the analyst console
 ```
 
@@ -230,6 +245,7 @@ Or step by step:
 ```bash
 python -m casegraph.etl.prepare
 python -m casegraph.graph.setup all          # schema, load, install queries
+python -m casegraph.graph.analytics          # GDBMS_ALGO Louvain + WCC (~1 min)
 python -m casegraph.rag.build                # vectors
 python -m casegraph run --all                # cases/*.json, written to the graph, chronological order
 python -m casegraph check

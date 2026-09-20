@@ -1,0 +1,29 @@
+CREATE OR REPLACE QUERY device_community(STRING device_id, DATETIME before_ts, INT max_list = 30) FOR GRAPH @GRAPH@ SYNTAX V2 {
+  /* Reads the Louvain community that TigerGraph's GDBMS_ALGO library assigned to this
+     device profile (casegraph.graph.analytics writes louvain_id onto Holder and
+     DeviceProfile vertices), and summarises it: how many cardholders, cards and device
+     profiles share the community, and how many closed cases opened BEFORE the alert
+     came out of its cardholders' transactions, confirmed fraud vs cleared. A community
+     that has already produced a lot of confirmed fraud is a reason for suspicion; a
+     large community with none is a mild reason for comfort. */
+  MinAccum<INT> @@cid;
+  SumAccum<INT> @@holders, @@txns;
+  SetAccum<STRING> @@cards, @@devices;
+  MapAccum<STRING, MaxAccum<STRING>> @@case_outcome, @@case_pattern;
+  SetAccum<STRING> @@fraud_holders;
+  OrAccum @fraud;
+
+  D = {DeviceProfile.*};
+  D = SELECT d FROM D:d WHERE d.id == device_id ACCUM @@cid += d.louvain_id;
+  H = {Holder.*};
+  H = SELECT h FROM H:h WHERE @@cid >= 0 AND h.louvain_id == @@cid ACCUM @@holders += 1;
+  DD = {DeviceProfile.*};
+  DD = SELECT d FROM DD:d WHERE @@cid >= 0 AND d.louvain_id == @@cid ACCUM @@devices += d.id;
+  C = SELECT c FROM H:h -(HOLDER_OF>:e)- Card:c ACCUM @@cards += c.id;
+  T = SELECT t FROM H:h -(HOLDER_TXN>:e)- Transaction:t ACCUM @@txns += 1;
+  CC = SELECT cc FROM T:t -(IN_CLOSED_CASE>:e)- ClosedCase:cc
+       WHERE cc.opened_at < before_ts
+       ACCUM @@case_outcome += (cc.id -> cc.outcome), @@case_pattern += (cc.id -> cc.pattern);
+  PRINT @@cid AS community, @@holders AS n_holders, @@cards.size() AS n_cards, @@devices.size() AS n_devices,
+        @@txns AS n_txns, @@case_outcome AS closed_case_outcome, @@case_pattern AS closed_case_pattern;
+}

@@ -12,11 +12,13 @@ the dashboard's timeline.
 """
 from __future__ import annotations
 
+import math
 import time
 from collections import Counter
 from datetime import timedelta
 
 from casegraph.agent import policy as P
+from casegraph.agent.actions import dispatch
 from casegraph.agent.llm import LLM
 from casegraph.agent.mcp_client import MCPGraph
 from casegraph.agent.signals import Evidence, Findings, card_testing, logit, money, recurring, sigmoid, structuring
@@ -25,6 +27,8 @@ from casegraph.rag.embed import embed_one, fingerprint
 
 GENERIC_DEVICE_CARDS = 60      # a device profile seen on more cards than this is too common to link people
 PLANNER_BUDGET = 3
+# confirmed-fraud closed cases per inferred cardholder, bank-wide (4,665 cases / 222,481 holders)
+BASE_FRAUD_PER_HOLDER = 4665 / 222481
 
 PLANNER_TOOLS = [
     {"name": "card_window", "description": "All transactions on a card in a window around a time.",
@@ -76,6 +80,23 @@ class Investigator:
                             "data": data, "t": round(time.time() - self.t0, 2)})
         self.tools.step = len(self.events)
 
+    def checkpoint(self, status: str, p: float | None, pattern: str, actions: list[dict] | None = None) -> None:
+        """Progress the case vertex in the graph as the investigation moves (open -> decided)."""
+        if not self.persist:
+            return
+        from casegraph.agent.memory import checkpoint
+
+        checkpoint(self, status, p, pattern, actions)
+
+    def act(self, stage: str, plan, connected=None) -> None:
+        """Hand a plan to the action desk: auto actions execute, L1/L2 wait for a human."""
+        rows = dispatch(self.case["case_id"], stage, plan.sorted(), {"connected": connected or []})
+        self.actions_log += rows
+        done = [r["action"] for r in rows if r["status"] == "executed"]
+        held = [f"{r['action']} ({r['route']})" for r in rows if r["status"] != "executed"]
+        self.ev("action", f"{stage}: executed {len(done)}, awaiting approval {len(held)}",
+                "executed: " + (", ".join(done) or "-") + " | awaiting approval: " + (", ".join(held) or "-"), rows)
+
     # ================================================================== main
     def investigate(self, case: dict) -> dict:
         self.t0 = time.time()
@@ -87,7 +108,9 @@ class Investigator:
         cid, trig = case["case_id"], case["trigger_type"]
         prefix, num = cid.split("-", 1)
         self.graph_case_id = f"CASE-2016-{num}" if prefix == "HHG" else f"CASE-2016-{prefix[0]}{num}"
+        self.actions_log: list[dict] = []
         self.ev("trigger", f"{trig.replace('_', ' ')} on txn {case['flagged_txn_id']}", case["trigger_text"])
+        self.checkpoint("open", None, "none")
 
         # ---------------------------------------------------------- gather
         ctx = self.tools.txn_context(case["flagged_txn_id"], why="open the flagged transaction and its neighbours")
@@ -114,12 +137,15 @@ class Investigator:
         if trig == "customer_report" or True:
             rec = self.tools.recurring_check(holder, card, region, f["product"], f["amount"], at,
                                              why="is this a repeating payment of the cardholder (R7)")
+        comm = None
+        if device and specific_device:
+            comm = self.tools.device_community(device, at, why="Louvain community of this device (GDBMS_ALGO)")
         others = [c for c in (dev_n or {}).get("cards", []) if c["card"] != card]
         if device and specific_device and len(others) >= 2:
             ring = self.tools.device_ring(at - timedelta(days=14), at + timedelta(days=14), seed_device=device,
                                           why="connected components over cardholders and specific devices")
         self.data = dict(prof=prof, window=window, prior=prior, dev_n=dev_n, ring=ring, reg=reg, rec=rec,
-                         specific_device=specific_device, extra_windows={})
+                         specific_device=specific_device, extra_windows={}, comm=comm)
         self.ev("gather", "core evidence gathered", f"{self.trace.n} graph calls so far")
 
         # ---------------------------------------------------------- plan more
@@ -141,6 +167,8 @@ class Investigator:
         sit = self.situation(p0, groups, single, pattern, exposure, F)
         init_plan, request = P.initial_plan(sit)
         self.ev("decide", "initial next-best-action", ", ".join(a["action"] for a in init_plan.sorted()))
+        self.act("initial", init_plan, sorted(F.connected_cards - {card}))
+        self.checkpoint("open", p0, pattern, init_plan.sorted())
 
         # ---------------------------------------------------------- more evidence
         requests, p1, response = [], p0, None
@@ -172,12 +200,21 @@ class Investigator:
             episode = self.episode(F, max(p1, 0.5) if verdict == "fraud" else p1)
             exposure = round(sum(abs(r["amount"]) for r in episode), 2)
         sit.p, sit.pattern, sit.exposure = p1, pattern, exposure
+        if verdict == "uncertain" and request:
+            # policy section 5: the agent may also ask an analyst for information, without approval
+            requests.append({"type": "analyst_info", "asked_after_step": len(self.events),
+                             "assumed_response": "Analyst acknowledged the request for merchant / terminal records; "
+                                                 "review pending, no additional facts within the investigation window"})
+            self.ev("request", "evidence requested: analyst_info",
+                    "customer did not settle it; ask an analyst for merchant/terminal records (policy section 5)")
         final = P.final_plan(sit, verdict) if request else init_plan
         self.ev("assess", f"re-assessment: p={p1:.2f} -> verdict {verdict}", f"pattern {pattern}")
         self.ev("decide", "final next-best-action", ", ".join(a["action"] for a in final.sorted()))
         file_sar, sar_reason = P.sar_required(sit, verdict)
         file_sar = file_sar and "FILE_REPORT" in final.names()
         status = P.status_for(verdict, final)
+        if request:
+            self.act("final", final, sorted(F.connected_cards - {card}) if verdict != "legitimate" else [])
 
         # ---------------------------------------------------------- write
         connected = sorted(F.connected_cards - {card}) if verdict != "legitimate" else []
@@ -516,6 +553,27 @@ class Investigator:
                 F.connected_devices |= set(devs)
                 F.shared_element = f"device profile {devs[0]}" if len(devs) == 1 else f"{len(devs)} device profiles"
                 F.support("undocumented", 2.5 if proxy_share >= 0.5 else 1.0)
+
+        # -- Louvain community (TigerGraph GDBMS_ALGO, batch) -----------------------------------
+        comm = d.get("comm")
+        if comm and comm.get("community", -1) >= 0 and comm["n_holders"] >= 3:
+            oc = list((comm.get("closed_case_outcome") or {}).values())
+            fraud_n, clear_n = oc.count("confirmed_fraud"), oc.count("cleared")
+            rate = fraud_n / comm["n_holders"]
+            lift = (rate + 0.005) / (BASE_FRAUD_PER_HOLDER + 0.005)
+            w = round(max(min(0.35 * math.log2(lift), 0.8), -0.3), 2)
+            F.add(Evidence(f"TigerGraph's Louvain community detection (GDBMS_ALGO) places this device profile in a "
+                           f"community of {comm['n_holders']} cardholders, {comm['n_cards']} cards and "
+                           f"{comm['n_devices']} device profile(s); before this alert its cardholders produced "
+                           f"{fraud_n} confirmed-fraud and {clear_n} cleared closed cases "
+                           f"({lift:.1f}x the bank-wide rate per cardholder)", "graph",
+                           f"algo:GDBMS_ALGO.community.louvain -> query:device_community(community={comm['community']})",
+                           sorted(k for k, v in (comm.get("closed_case_outcome") or {}).items()
+                                  if v == "confirmed_fraud")[:8] or [device], w, "network", "louvain_community"))
+            F.notes["community"] = {"id": comm["community"], "holders": comm["n_holders"], "fraud": fraud_n,
+                                    "cleared": clear_n, "lift": round(lift, 2)}
+            if comm["n_devices"] == 1 and comm["n_holders"] >= 5 and d["specific_device"]:
+                F.support("undocumented", 0.5)
 
         # -- connected cards the planner looked at -----------------------------------------
         for other, rows in d["extra_windows"].items():

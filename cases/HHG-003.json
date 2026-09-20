@@ -80,14 +80,14 @@
       "CC-2218",
       "CC-4971"
     ],
-    "summary": "Customer C08623 initially disputed an in-person transaction of $49.00 (ID 3530164) on card C08623-K2, claiming it was unauthorized. Investigation revealed the transaction occurred in billing region 330, where the cardholder has a established history of 42 purchases dating back to July 2016. Risk models indicated low fraud probability, with scores of 0.40 and 0.02. Upon further verification, the customer recognized the transaction as a household purchase and withdrew the dispute.",
+    "summary": "Customer C08623 initially disputed an in-person transaction of $49.00 (ID: 3530164) on card C08623-K2, claiming they did not make it. The transaction occurred in billing region 330, which is a familiar region with 42 prior purchases. Upon receiving a verification request, the customer reviewed the merchant details, recognized the transaction as a household purchase, and withdrew the dispute. Consequently, the transaction was confirmed as legitimate and the case was closed.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-003"
   },
   "evidence_requests": [
     {
       "type": "customer_validation",
-      "asked_after_step": 9,
+      "asked_after_step": 10,
       "assumed_response": "On review of the merchant and date, the customer recognises the purchase (a household/own purchase) and withdraws the dispute"
     }
   ],
@@ -116,7 +116,7 @@
         "reason": "R3: customer confirmed the transaction"
       }
     ],
-    "what_changed": "The case was initially opened as a potential fraud report, but the verdict was updated to legitimate after the customer confirmed the transaction was their own."
+    "what_changed": "Initially, the case was flagged for verification based on the customer's dispute, but it was resolved and closed as legitimate after the customer recognized the purchase and withdrew the dispute."
   },
   "sar": {
     "file": false,
@@ -126,8 +126,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Per policy R1, the transaction was verified with the customer; the case is closed as the customer confirmed the activity and withdrew the dispute.",
+  "stop_reason": "Pursuant to policy section 6, the investigation was stopped and the case closed because the customer verified the transaction was authorized, resolving the dispute.",
   "tool_calls": 13,
-  "tokens": 4918,
-  "latency_s": 31.0
+  "tokens": 5852,
+  "latency_s": 28.1
 }

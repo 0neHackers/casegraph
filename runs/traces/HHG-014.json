@@ -15,50 +15,50 @@
       "title": "flagged transaction in context",
       "detail": "$74.96 online product C on C13487-K1 at 2016-11-22 16:11:00; holder C13487-K1|191|143; device SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080; region 191",
       "data": null,
-      "t": 0.32
+      "t": 0.59
     },
     {
       "step": 3,
       "kind": "gather",
       "title": "core evidence gathered",
-      "detail": "7 graph calls so far",
+      "detail": "8 graph calls so far",
       "data": null,
-      "t": 2.65
+      "t": 3.06
     },
     {
       "step": 4,
       "kind": "plan",
       "title": "LLM planner (gemini-3.8-flash) -> card_window",
-      "detail": "Inspect the flagged transaction and neighboring transactions on card C13487-K1.",
+      "detail": "Inspect all transactions on C13487-K1 around the flagged transaction time",
       "data": {
-        "hours_before": 72,
         "at": "2016-11-22 16:11:00",
+        "hours_after": 48,
         "card_id": "C13487-K1",
-        "hours_after": 24
+        "hours_before": 72
       },
-      "t": 7.83
+      "t": 11.17
     },
     {
       "step": 5,
       "kind": "plan",
-      "title": "LLM planner (gemini-3.8-flash) -> device_neighbors",
-      "detail": "Check other cards and fraud cases associated with this shared device profile.",
+      "title": "LLM planner (gemini-3.8-flash) -> prior_cases",
+      "detail": "Check prior closed fraud cases linked to C13487-K1",
       "data": {
-        "days_before": 14,
-        "days_after": 7,
-        "device_id": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080"
+        "card_id": "C13487-K1"
       },
-      "t": 8.08
+      "t": 11.43
     },
     {
       "step": 6,
       "kind": "plan",
-      "title": "LLM planner (gemini-3.8-flash) -> prior_cases",
-      "detail": "Check details of prior closed fraud cases linked to C13487-K1.",
+      "title": "LLM planner (gemini-3.8-flash) -> device_neighbors",
+      "detail": "Examine card activity and fraud history on this shared device profile",
       "data": {
-        "card_id": "C13487-K1"
+        "days_before": 14,
+        "device_id": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "days_after": 7
       },
-      "t": 8.35
+      "t": 11.69
     },
     {
       "step": 7,
@@ -66,7 +66,7 @@
       "title": "similar cases recalled",
       "detail": "fingerprint top: ['CC-2649', 'CC-2971', 'CC-3302', 'CC-2985', 'CC-2722']; narrative top: ['CC-1095', 'CC-1272', 'CC-5525']; agent cases: ['HHG-015', 'HHG-006', 'HHG-017']",
       "data": null,
-      "t": 9.66
+      "t": 12.98
     },
     {
       "step": 8,
@@ -74,7 +74,7 @@
       "title": "initial assessment: p=0.97, pattern undocumented",
       "detail": "4 independent evidence line(s); single-signal=False; exposure $439.61",
       "data": null,
-      "t": 9.66
+      "t": 12.98
     },
     {
       "step": 9,
@@ -82,39 +82,93 @@
       "title": "initial next-best-action",
       "detail": "BLOCK_CARD, CREATE_CASE, MONITOR_CONNECTED_CARDS, FILE_REPORT, ESCALATE_TO_ANALYST",
       "data": null,
-      "t": 9.66
+      "t": 12.98
     },
     {
       "step": 10,
+      "kind": "action",
+      "title": "initial: executed 3, awaiting approval 2",
+      "detail": "executed: CREATE_CASE, MONITOR_CONNECTED_CARDS, ESCALATE_TO_ANALYST | awaiting approval: BLOCK_CARD (L1), FILE_REPORT (L2)",
+      "data": [
+        {
+          "stage": "initial",
+          "action": "BLOCK_CARD",
+          "route": "L1",
+          "status": "pending_approval",
+          "system": "approval-queue",
+          "detail": "awaiting team lead (L1)",
+          "ref": "APR-218b32b2"
+        },
+        {
+          "stage": "initial",
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "status": "executed",
+          "system": "case-system",
+          "detail": "case opened and written to TigerGraph",
+          "ref": "CASE-db54d03a"
+        },
+        {
+          "stage": "initial",
+          "action": "MONITOR_CONNECTED_CARDS",
+          "route": "auto",
+          "status": "executed",
+          "system": "risk-engine",
+          "detail": "27 connected card(s) placed under monitoring",
+          "ref": "RISK-eacfa9dc"
+        },
+        {
+          "stage": "initial",
+          "action": "FILE_REPORT",
+          "route": "L2",
+          "status": "pending_approval",
+          "system": "approval-queue",
+          "detail": "awaiting fraud manager (L2)",
+          "ref": "APR-8a512f85"
+        },
+        {
+          "stage": "initial",
+          "action": "ESCALATE_TO_ANALYST",
+          "route": "auto",
+          "status": "executed",
+          "system": "analyst-queue",
+          "detail": "case handed to the fraud-analyst queue with evidence",
+          "ref": "ANALYST-03767b29"
+        }
+      ],
+      "t": 12.98
+    },
+    {
+      "step": 11,
       "kind": "assess",
       "title": "re-assessment: p=0.97 -> verdict fraud",
       "detail": "pattern undocumented",
       "data": null,
-      "t": 9.66
+      "t": 13.24
     },
     {
-      "step": 11,
+      "step": 12,
       "kind": "decide",
       "title": "final next-best-action",
       "detail": "BLOCK_CARD, CREATE_CASE, MONITOR_CONNECTED_CARDS, FILE_REPORT, ESCALATE_TO_ANALYST",
       "data": null,
-      "t": 9.66
+      "t": 13.24
     },
     {
-      "step": 12,
+      "step": 13,
       "kind": "write",
       "title": "case text written by the LLM (gemini-3.8-flash) from graph evidence + retrieved context",
       "detail": "9 retrieved passages",
       "data": null,
-      "t": 16.83
+      "t": 23.15
     },
     {
-      "step": 13,
+      "step": 14,
       "kind": "memory",
       "title": "case written to the graph",
       "detail": "CASE-2016-014 + events, links and vectors",
       "data": null,
-      "t": 22.94
+      "t": 29.12
     }
   ],
   "facts": {
@@ -148,6 +202,7 @@
       "Identity record marks the device New for this account and it has never been seen on this cardholder; connection behind proxy anonymous",
       "Closed cases on transactions from this device profile: 4 confirmed fraud (CC-2649, CC-2971, CC-2985, CC-3035)",
       "Analyst flagged purchases from the same unusual device profile on several cards",
+      "TigerGraph's Louvain community detection (GDBMS_ALGO) places this device profile in a community of 110 cardholders, 52 cards and 1 device profile(s); before this alert its cardholders produced 4 confirmed-fraud and 0 cleared closed cases (1.6x the bank-wide rate per cardholder)",
       "On C13487-K1, the shared device made 1 purchase(s) totalling $74.96; average case-memory score 0.26",
       "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly undocumented) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
       "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3478561 at 0.26; the bank's risk score is 0.05. Both are inputs, not a verdict"
@@ -224,13 +279,60 @@
     "sar_reason": "File: the activity connects to a shared device profile SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080 and other cards; the pattern is coordinated / undocumented (R9) (section 3a, R6, R9, R2).",
     "similar_prior_cases": [
       "CC-2985",
+      "CC-2971",
       "CC-2649",
       "CC-3035",
-      "CC-2971",
       "CC-3302",
       "CC-2722"
     ]
   },
+  "actions": [
+    {
+      "stage": "initial",
+      "action": "BLOCK_CARD",
+      "route": "L1",
+      "status": "pending_approval",
+      "system": "approval-queue",
+      "detail": "awaiting team lead (L1)",
+      "ref": "APR-218b32b2"
+    },
+    {
+      "stage": "initial",
+      "action": "CREATE_CASE",
+      "route": "auto",
+      "status": "executed",
+      "system": "case-system",
+      "detail": "case opened and written to TigerGraph",
+      "ref": "CASE-db54d03a"
+    },
+    {
+      "stage": "initial",
+      "action": "MONITOR_CONNECTED_CARDS",
+      "route": "auto",
+      "status": "executed",
+      "system": "risk-engine",
+      "detail": "27 connected card(s) placed under monitoring",
+      "ref": "RISK-eacfa9dc"
+    },
+    {
+      "stage": "initial",
+      "action": "FILE_REPORT",
+      "route": "L2",
+      "status": "pending_approval",
+      "system": "approval-queue",
+      "detail": "awaiting fraud manager (L2)",
+      "ref": "APR-8a512f85"
+    },
+    {
+      "stage": "initial",
+      "action": "ESCALATE_TO_ANALYST",
+      "route": "auto",
+      "status": "executed",
+      "system": "analyst-queue",
+      "detail": "case handed to the fraud-analyst queue with evidence",
+      "ref": "ANALYST-03767b29"
+    }
+  ],
   "tool_calls": [
     {
       "step": 1,
@@ -238,7 +340,7 @@
       "args": {
         "txn_id": "3478561"
       },
-      "latency_s": 0.318,
+      "latency_s": 0.331,
       "transport": "mcp",
       "digest": "txn 3478561",
       "why": "open the flagged transaction and its neighbours"
@@ -256,7 +358,7 @@
         "product": "C",
         "amount": 74.96
       },
-      "latency_s": 0.268,
+      "latency_s": 0.264,
       "transport": "mcp",
       "digest": "card n=71 holder n=0",
       "why": "what is normal for this card and this cardholder"
@@ -269,7 +371,7 @@
         "t0": "2016-11-19 16:11:00",
         "t1": "2016-11-23 16:11:00"
       },
-      "latency_s": 0.253,
+      "latency_s": 0.247,
       "transport": "mcp",
       "digest": "3 txns on C13487-K1",
       "why": "activity on the card around the alert"
@@ -283,7 +385,7 @@
         "device_id": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
         "before_ts": "2016-11-22 16:11:00"
       },
-      "latency_s": 0.269,
+      "latency_s": 0.266,
       "transport": "mcp",
       "digest": "4 closed, 0 agent cases",
       "why": "case memory linked by card, holder, device"
@@ -296,7 +398,7 @@
         "t0": "2016-11-08 16:11:00",
         "t1": "2016-11-29 16:11:00"
       },
-      "latency_s": 0.255,
+      "latency_s": 0.25,
       "transport": "mcp",
       "digest": "25 cards on device in window",
       "why": "who else used this device profile around the alert"
@@ -312,10 +414,22 @@
         "amount": 74.96,
         "before_ts": "2016-11-22 16:11:00"
       },
-      "latency_s": 0.267,
+      "latency_s": 0.264,
       "transport": "mcp",
       "digest": "0 holder / 0 card repeats",
       "why": "is this a repeating payment of the cardholder (R7)"
+    },
+    {
+      "step": 2,
+      "tool": "device_community",
+      "args": {
+        "device_id": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "before_ts": "2016-11-22 16:11:00"
+      },
+      "latency_s": 0.261,
+      "transport": "mcp",
+      "digest": "community 150995192: 110 holders, 4 earlier closed cases",
+      "why": "Louvain community of this device (GDBMS_ALGO)"
     },
     {
       "step": 2,
@@ -326,7 +440,7 @@
         "t0": "2016-11-08 16:11:00",
         "t1": "2016-12-06 16:11:00"
       },
-      "latency_s": 1.023,
+      "latency_s": 0.918,
       "transport": "mcp",
       "digest": "1 component(s)",
       "why": "connected components over cardholders and specific devices"
@@ -337,28 +451,15 @@
       "args": {
         "card_id": "C13487-K1",
         "t0": "2016-11-19 16:11:00",
-        "t1": "2016-11-23 16:11:00"
+        "t1": "2016-11-24 16:11:00"
       },
-      "latency_s": 0.253,
+      "latency_s": 0.25,
       "transport": "mcp",
       "digest": "3 txns on C13487-K1",
-      "why": "Inspect the flagged transaction and neighboring transactions on card C13487-K1."
+      "why": "Inspect all transactions on C13487-K1 around the flagged transaction time"
     },
     {
       "step": 4,
-      "tool": "device_neighbors",
-      "args": {
-        "device_id": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
-        "t0": "2016-11-08 16:11:00",
-        "t1": "2016-11-29 16:11:00"
-      },
-      "latency_s": 0.255,
-      "transport": "mcp",
-      "digest": "25 cards on device in window",
-      "why": "Check other cards and fraud cases associated with this shared device profile."
-    },
-    {
-      "step": 5,
       "tool": "prior_cases",
       "args": {
         "card_id": "C13487-K1",
@@ -366,10 +467,23 @@
         "device_id": "",
         "before_ts": "2016-11-22 16:11:00"
       },
-      "latency_s": 0.269,
+      "latency_s": 0.265,
       "transport": "mcp",
       "digest": "0 closed, 0 agent cases",
-      "why": "Check details of prior closed fraud cases linked to C13487-K1."
+      "why": "Check prior closed fraud cases linked to C13487-K1"
+    },
+    {
+      "step": 5,
+      "tool": "device_neighbors",
+      "args": {
+        "device_id": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "t0": "2016-11-08 16:11:00",
+        "t1": "2016-11-29 16:11:00"
+      },
+      "latency_s": 0.251,
+      "transport": "mcp",
+      "digest": "25 cards on device in window",
+      "why": "Examine card activity and fraud history on this shared device profile"
     },
     {
       "step": 6,
@@ -379,7 +493,7 @@
         "t0": "2016-11-08 16:11:00",
         "t1": "2016-11-29 16:11:00"
       },
-      "latency_s": 0.254,
+      "latency_s": 0.248,
       "transport": "mcp",
       "digest": "12 txns on C13487-K1",
       "why": "this card's own purchases on the shared device"
@@ -408,7 +522,7 @@
         ],
         "k": 12
       },
-      "latency_s": 0.263,
+      "latency_s": 0.247,
       "transport": "mcp",
       "digest": "12 by fingerprint",
       "why": "closed episodes with the same behavioural shape"
@@ -805,7 +919,7 @@
         ],
         "k": 6
       },
-      "latency_s": 0.255,
+      "latency_s": 0.256,
       "transport": "mcp",
       "digest": "6 by narrative",
       "why": "closed cases with a similar narrative"
@@ -834,7 +948,7 @@
         ],
         "k": 5
       },
-      "latency_s": 0.251,
+      "latency_s": 0.247,
       "transport": "mcp",
       "digest": "3 agent cases",
       "why": "the agent's own earlier cases with the same shape"
@@ -1231,7 +1345,7 @@
         ],
         "k": 6
       },
-      "latency_s": 0.255,
+      "latency_s": 0.251,
       "transport": "mcp",
       "digest": "6 chunks",
       "why": "policy rules, typologies and regulatory guidance for this situation"
@@ -1291,6 +1405,12 @@
       "weight": 2.0,
       "group": "network",
       "signal": "ring"
+    },
+    {
+      "claim": "TigerGraph's Louvain community detection (GDBMS_ALGO) places this device profile in a community of 110 cardholders, 52 cards and 1 device profile(s); before this alert its cardholders produced 4 confirmed-fraud and 0 cleared closed cases (1.6x the bank-wide rate per cardholder)",
+      "weight": 0.24,
+      "group": "network",
+      "signal": "louvain_community"
     },
     {
       "claim": "On C13487-K1, the shared device made 1 purchase(s) totalling $74.96; average case-memory score 0.26",

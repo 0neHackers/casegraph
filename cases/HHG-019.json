@@ -54,12 +54,11 @@
         ]
       },
       {
-        "claim": "On C07987-K2, the shared device made 1 purchase(s) totalling $99.92; average case-memory score 0.63",
+        "claim": "TigerGraph's Louvain community detection (GDBMS_ALGO) places this device profile in a community of 5 cardholders, 5 cards and 1 device profile(s); before this alert its cardholders produced 0 confirmed-fraud and 0 cleared closed cases (0.2x the bank-wide rate per cardholder)",
         "source": "graph",
-        "ref": "query:card_window(card_id=C07987-K2)",
+        "ref": "algo:GDBMS_ALGO.community.louvain -> query:device_community(community=166723865)",
         "entity_ids": [
-          "C07987-K2",
-          "3503878"
+          "Windows | other | chrome 61.0 | 1280x720"
         ]
       },
       {
@@ -104,7 +103,7 @@
       "CC-1753",
       "CC-1115"
     ],
-    "summary": "This case (HHG-019) was triggered by a real-time risk score of 0.90 on transaction 3503878 ($99.92) on card C07987-K2. The transaction was an online purchase on 2016-12-01 using a new device profile 'Windows | other | chrome 61.0 | 1280x720'. Investigation revealed this device profile was shared among 5 cards (including C07987-K2, C01104-K2, C01983-K1, C06224-K2, and C11309-K1) between 2016-11-29 and 2016-12-04, totaling $500.00. Based on prior confirmed fraud cases like CC-2878 and CC-3438, this fits the card-not-present new device fraud pattern, leading to the card being blocked and a SAR being filed.",
+    "summary": "This case was triggered by a real-time model risk score of 0.90 on transaction 3503878, an online purchase of $99.92 on card C07987-K2. Investigation revealed that the transaction was conducted using a new device profile, 'Windows | other | chrome 61.0 | 1280x720', which has never been seen on this account. A connected-components scan linked this device profile to four other cardholders (cards C01104-K2, C01983-K1, C06224-K2, and C11309-K1) who experienced similar transactions between 2016-11-29 and 2016-12-04. Based on the shared device profile and historical fraud patterns, the transaction is confirmed as card-not-present fraud. We have blocked the card, initiated a case, placed connected cards under monitoring, and filed a report.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-019"
   },
@@ -159,7 +158,7 @@
   "sar": {
     "file": true,
     "reason": "File: the activity connects to a shared device profile Windows | other | chrome 61.0 | 1280x720 and other cards (section 3a, R6, R2).",
-    "narrative": "On 2016-12-01, cardholder C07987 experienced an unauthorized online transaction of $99.92 on card C07987-K2. The transaction (ID 3503878) originated from a device profile 'Windows | other | chrome 61.0 | 1280x720' which was completely new to the cardholder's account. A subsequent network analysis revealed that this exact device profile was used to conduct transactions across 5 different cardholders between 2016-11-29 and 2016-12-04, totaling $500.00. The connected cards involved in this activity include C01104-K2, C01983-K1, C06224-K2, and C11309-K1. This coordinated use of a single new device profile across multiple unrelated accounts indicates a systematic card-not-present fraud ring. Similar prior cases, such as CC-2878 and CC-3438, confirm this pattern as highly indicative of compromise. Therefore, a Suspicious Activity Report is being filed to document this coordinated abuse, and card C07987-K2 has been blocked to prevent further exposure.",
+    "narrative": "On 2016-12-01 at 17:28:53, an unauthorized online transaction of $99.92 (ID 3503878) was attempted on card C07987-K2, held by customer C07987. The transaction originated from a device profile 'Windows | other | chrome 61.0 | 1280x720' which was marked as new and had no prior association with this cardholder. Network analysis revealed that this exact device profile was shared across five different cardholders, including C07987, between 2016-11-29 and 2016-12-04, totaling five transactions and $500.00 in exposure. The other connected cards involved in this activity are C01104-K2, C01983-K1, C06224-K2, and C11309-K1. This coordinated pattern of a single device profile accessing multiple unrelated accounts within a short timeframe is highly indicative of card-not-present fraud. Similar historical cases, such as CC-2878 and CC-3438, confirm this behavioral fingerprint as fraudulent. Consequently, the bank has blocked card C07987-K2, placed the connected cards under monitoring, and is filing this report to document the suspicious activity.",
     "subjects": [
       "C07987",
       "C07987-K2",
@@ -175,8 +174,8 @@
       "2016-12-01"
     ]
   },
-  "stop_reason": "The card was blocked and a report filed under Policy R2 and R6 due to the transaction's connection to a shared device profile and other cards' fraud.",
+  "stop_reason": "Action is taken in accordance with Policy Section 6, specifically R2, which mandates blocking the card and filing a report when unauthorized activity connects to a shared device profile.",
   "tool_calls": 14,
-  "tokens": 7099,
-  "latency_s": 60.2
+  "tokens": 7543,
+  "latency_s": 74.0
 }

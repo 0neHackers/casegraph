@@ -15,7 +15,7 @@
       "title": "flagged transaction in context",
       "detail": "$30.02 online product S on C08299-K1 at 2016-12-28 12:10:53; holder C08299-K1|203|179; device none; region 203",
       "data": null,
-      "t": 0.31
+      "t": 0.57
     },
     {
       "step": 3,
@@ -23,28 +23,28 @@
       "title": "core evidence gathered",
       "detail": "5 graph calls so far",
       "data": null,
-      "t": 1.33
+      "t": 1.61
     },
     {
       "step": 4,
       "kind": "plan",
       "title": "LLM planner (gemini-3-flash-preview) -> card_window",
-      "detail": "Check the other transaction in the window for this card.",
+      "detail": "Examine the other transaction in the window for context.",
       "data": {
-        "card_id": "C08299-K1",
         "at": "2016-12-28 12:10:53",
         "hours_before": 72,
+        "card_id": "C08299-K1",
         "hours_after": 24
       },
-      "t": 3.91
+      "t": 4.2
     },
     {
       "step": 5,
       "kind": "memory",
       "title": "similar cases recalled",
-      "detail": "fingerprint top: ['CC-3098', 'CC-2479', 'CC-3856', 'CC-3689', 'CC-2186']; narrative top: ['CC-2692', 'CC-2742', 'CC-2285']; agent cases: ['HHG-008', 'HHG-010', 'HHG-016']",
+      "detail": "fingerprint top: ['CC-3098', 'CC-2479', 'CC-3856', 'CC-3689', 'CC-2186']; narrative top: ['CC-2692', 'CC-2742', 'CC-2285']; agent cases: ['HHG-008', 'HHG-002', 'HHG-019']",
       "data": null,
-      "t": 4.92
+      "t": 5.23
     },
     {
       "step": 6,
@@ -52,7 +52,7 @@
       "title": "initial assessment: p=0.90, pattern card_not_present_fraud",
       "detail": "2 independent evidence line(s); single-signal=True; exposure $30.02",
       "data": null,
-      "t": 4.92
+      "t": 5.23
     },
     {
       "step": 7,
@@ -60,39 +60,66 @@
       "title": "initial next-best-action",
       "detail": "BLOCK_CARD, CREATE_CASE",
       "data": null,
-      "t": 4.92
+      "t": 5.23
     },
     {
       "step": 8,
+      "kind": "action",
+      "title": "initial: executed 1, awaiting approval 1",
+      "detail": "executed: CREATE_CASE | awaiting approval: BLOCK_CARD (L1)",
+      "data": [
+        {
+          "stage": "initial",
+          "action": "BLOCK_CARD",
+          "route": "L1",
+          "status": "pending_approval",
+          "system": "approval-queue",
+          "detail": "awaiting team lead (L1)",
+          "ref": "APR-e9f77344"
+        },
+        {
+          "stage": "initial",
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "status": "executed",
+          "system": "case-system",
+          "detail": "case opened and written to TigerGraph",
+          "ref": "CASE-298965d0"
+        }
+      ],
+      "t": 5.23
+    },
+    {
+      "step": 9,
       "kind": "assess",
       "title": "re-assessment: p=0.90 -> verdict fraud",
       "detail": "pattern card_not_present_fraud",
       "data": null,
-      "t": 4.92
+      "t": 5.49
     },
     {
-      "step": 9,
+      "step": 10,
       "kind": "decide",
       "title": "final next-best-action",
       "detail": "BLOCK_CARD, CREATE_CASE",
       "data": null,
-      "t": 4.92
+      "t": 5.49
     },
     {
-      "step": 10,
+      "step": 11,
       "kind": "write",
       "title": "case text written by the LLM (gemini-3-flash-preview) from graph evidence + retrieved context",
       "detail": "9 retrieved passages",
       "data": null,
-      "t": 17.14
+      "t": 22.58
     },
     {
-      "step": 11,
+      "step": 12,
       "kind": "memory",
       "title": "case written to the graph",
       "detail": "CASE-2016-009 + events, links and vectors",
       "data": null,
-      "t": 21.99
+      "t": 28.37
     }
   ],
   "facts": {
@@ -159,6 +186,26 @@
       "CC-2692"
     ]
   },
+  "actions": [
+    {
+      "stage": "initial",
+      "action": "BLOCK_CARD",
+      "route": "L1",
+      "status": "pending_approval",
+      "system": "approval-queue",
+      "detail": "awaiting team lead (L1)",
+      "ref": "APR-e9f77344"
+    },
+    {
+      "stage": "initial",
+      "action": "CREATE_CASE",
+      "route": "auto",
+      "status": "executed",
+      "system": "case-system",
+      "detail": "case opened and written to TigerGraph",
+      "ref": "CASE-298965d0"
+    }
+  ],
   "tool_calls": [
     {
       "step": 1,
@@ -166,7 +213,7 @@
       "args": {
         "txn_id": "3581141"
       },
-      "latency_s": 0.31,
+      "latency_s": 0.313,
       "transport": "mcp",
       "digest": "txn 3581141",
       "why": "open the flagged transaction and its neighbours"
@@ -184,7 +231,7 @@
         "product": "S",
         "amount": 30.02
       },
-      "latency_s": 0.259,
+      "latency_s": 0.264,
       "transport": "mcp",
       "digest": "card n=46 holder n=0",
       "why": "what is normal for this card and this cardholder"
@@ -197,7 +244,7 @@
         "t0": "2016-12-25 12:10:53",
         "t1": "2016-12-29 12:10:53"
       },
-      "latency_s": 0.244,
+      "latency_s": 0.248,
       "transport": "mcp",
       "digest": "2 txns on C08299-K1",
       "why": "activity on the card around the alert"
@@ -211,7 +258,7 @@
         "device_id": "",
         "before_ts": "2016-12-28 12:10:53"
       },
-      "latency_s": 0.259,
+      "latency_s": 0.264,
       "transport": "mcp",
       "digest": "0 closed, 0 agent cases",
       "why": "case memory linked by card, holder, device"
@@ -227,7 +274,7 @@
         "amount": 30.02,
         "before_ts": "2016-12-28 12:10:53"
       },
-      "latency_s": 0.258,
+      "latency_s": 0.263,
       "transport": "mcp",
       "digest": "0 holder / 0 card repeats",
       "why": "is this a repeating payment of the cardholder (R7)"
@@ -240,10 +287,10 @@
         "t0": "2016-12-25 12:10:53",
         "t1": "2016-12-29 12:10:53"
       },
-      "latency_s": 0.245,
+      "latency_s": 0.248,
       "transport": "mcp",
       "digest": "2 txns on C08299-K1",
-      "why": "Check the other transaction in the window for this card."
+      "why": "Examine the other transaction in the window for context."
     },
     {
       "step": 4,
@@ -269,7 +316,7 @@
         ],
         "k": 12
       },
-      "latency_s": 0.243,
+      "latency_s": 0.246,
       "transport": "mcp",
       "digest": "12 by fingerprint",
       "why": "closed episodes with the same behavioural shape"
@@ -666,7 +713,7 @@
         ],
         "k": 6
       },
-      "latency_s": 0.249,
+      "latency_s": 0.252,
       "transport": "mcp",
       "digest": "6 by narrative",
       "why": "closed cases with a similar narrative"
@@ -695,7 +742,7 @@
         ],
         "k": 5
       },
-      "latency_s": 0.243,
+      "latency_s": 0.246,
       "transport": "mcp",
       "digest": "5 agent cases",
       "why": "the agent's own earlier cases with the same shape"
@@ -1092,7 +1139,7 @@
         ],
         "k": 6
       },
-      "latency_s": 0.248,
+      "latency_s": 0.252,
       "transport": "mcp",
       "digest": "6 chunks",
       "why": "policy rules, typologies and regulatory guidance for this situation"

@@ -13,34 +13,27 @@
     "exposure_usd": 0.0,
     "evidence": [
       {
-        "claim": "Customer confirmed the activity when asked (simulated reply; see evidence_requests)",
-        "source": "customer",
-        "ref": "evidence_request:1",
-        "entity_ids": []
-      },
-      {
-        "claim": "First card-present use of C05876-K2 in billing region 494",
+        "claim": "The card has 21 earlier purchases in billing region 494 (first on 2016-07-05); the region is not new",
         "source": "graph",
         "ref": "query:region_context(card_id=C05876-K2, region=494)",
         "entity_ids": [
           "C05876-K2",
-          "494",
-          "3553342"
+          "494"
         ]
       },
       {
-        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly account_takeover) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
+        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly out_of_region_use) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
         "source": "graph",
         "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
         "entity_ids": [
-          "CC-0970",
-          "CC-4183",
-          "CC-5051",
-          "CC-0367",
-          "CC-4141",
-          "CC-0665",
-          "CC-0352",
-          "CC-5435"
+          "CC-3646",
+          "CC-3499",
+          "CC-2658",
+          "CC-0645",
+          "CC-4938",
+          "CC-3167",
+          "CC-1574",
+          "CC-1787"
         ]
       },
       {
@@ -61,55 +54,44 @@
       }
     ],
     "similar_prior_cases": [
-      "CC-0970",
-      "CC-4183",
-      "CC-5051",
-      "CC-0367",
-      "CC-4141",
-      "CC-0413"
+      "CC-3646",
+      "CC-3499",
+      "CC-2658",
+      "CC-0645",
+      "CC-4938",
+      "CC-0445"
     ],
-    "summary": "Transaction 3553342 ($30.91) on card C05876-K2 was flagged for a risk score of 0.55 and being the first card-present use in billing region 494. Initial actions included monitoring the card and verifying with the customer per policy R1, as the signal was weak and the model probability was low (0.001). The customer confirmed the transaction was authorized. The case is closed as legitimate with no further action required.",
+    "summary": "Case HHG-012 was triggered by a real-time risk score of 0.55 on transaction 3553342 ($30.91) for card C05876-K2. Investigation shows the transaction occurred in billing region 494, where the cardholder has an established history of 21 prior purchases dating back to 2016-07-05. The case-memory model assessed the transaction risk at 0.00, and the final fraud probability is low at 0.04. The transaction is determined to be legitimate, and the case is closed with no fraud.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-012"
   },
-  "evidence_requests": [
-    {
-      "type": "customer_validation",
-      "asked_after_step": 9,
-      "assumed_response": "Customer confirms they made the purchase"
-    }
-  ],
+  "evidence_requests": [],
   "next_best_actions": {
     "initial": [
       {
-        "action": "VERIFY_WITH_CUSTOMER",
+        "action": "ALLOW_TRANSACTION",
         "route": "auto",
-        "reason": "R1: probability 0.04 rests on a single signal; verify before any block"
+        "reason": "Probability <= 0.15 on two independent pieces of evidence (section 6); risk score alone is not a verdict (R1)"
       },
       {
-        "action": "CREATE_CASE",
+        "action": "CLOSE_NO_FRAUD",
         "route": "auto",
-        "reason": "Section 3a: evidence is being requested, which opens a case"
-      },
-      {
-        "action": "MONITOR_CARD",
-        "route": "auto",
-        "reason": "Keep the card active under raised monitoring while verification is pending"
+        "reason": "Probability <= 0.15 on two independent pieces of evidence (section 6); risk score alone is not a verdict (R1)"
       }
     ],
     "final": [
       {
         "action": "ALLOW_TRANSACTION",
         "route": "auto",
-        "reason": "R3: customer confirmed the transaction"
+        "reason": "Probability <= 0.15 on two independent pieces of evidence (section 6); risk score alone is not a verdict (R1)"
       },
       {
         "action": "CLOSE_NO_FRAUD",
         "route": "auto",
-        "reason": "R3: customer confirmed the transaction"
+        "reason": "Probability <= 0.15 on two independent pieces of evidence (section 6); risk score alone is not a verdict (R1)"
       }
     ],
-    "what_changed": "The case moved from a monitoring and verification state to a closed-no-fraud state after the customer confirmed the transaction."
+    "what_changed": "Nothing; the final actions remain identical to the initial actions as the transaction was confirmed legitimate."
   },
   "sar": {
     "file": false,
@@ -119,8 +101,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Investigation stopped per policy section 6 as the customer confirmed the transaction, resolving the alert triggered by the risk score.",
-  "tool_calls": 13,
-  "tokens": 5157,
-  "latency_s": 19.9
+  "stop_reason": "The investigation was concluded under Policy R6 as there was no evidence of shared origin, coordinated abuse, or connection to any fraudulent device profiles.",
+  "tool_calls": 12,
+  "tokens": 5021,
+  "latency_s": 27.2
 }

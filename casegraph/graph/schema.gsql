@@ -76,3 +76,15 @@ CREATE SCHEMA_CHANGE JOB casegraph_vectors FOR GRAPH @GRAPH@ {
 }
 RUN SCHEMA_CHANGE JOB casegraph_vectors
 DROP JOB casegraph_vectors
+
+// Projection for TigerGraph's graph-algorithm library (GDBMS_ALGO): which cardholder used which
+// linking device profile, plus the attributes the library writes its results into.
+CREATE SCHEMA_CHANGE JOB casegraph_algorithms FOR GRAPH @GRAPH@ {
+  ADD DIRECTED EDGE USED_DEVICE (FROM Holder, TO DeviceProfile, n_txn INT) WITH REVERSE_EDGE="DEVICE_USED_BY";
+  // undirected twin, weighted: the library's Louvain template needs undirected edges
+  ADD UNDIRECTED EDGE DEVICE_LINK (FROM Holder, TO DeviceProfile, weight FLOAT);
+  ALTER VERTEX Holder ADD ATTRIBUTE (louvain_id INT DEFAULT -1, wcc_id INT DEFAULT -1);
+  ALTER VERTEX DeviceProfile ADD ATTRIBUTE (louvain_id INT DEFAULT -1, wcc_id INT DEFAULT -1);
+}
+RUN SCHEMA_CHANGE JOB casegraph_algorithms
+DROP JOB casegraph_algorithms

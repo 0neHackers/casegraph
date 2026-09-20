@@ -71,15 +71,20 @@
       "CC-3686",
       "CC-0057"
     ],
-    "summary": "Transaction 3514948 for $111.92 on card C09933-K2 was flagged with a risk score of 0.87. Although the transaction occurred in-person in the cardholder's established billing region 264, the cardholder has a recent history of confirmed fraud, including cases CC-5521, CC-2834, and CC-2565. A verification request was sent, but no response was received within 24 hours.",
+    "summary": "Case HHG-007 was triggered by a real-time model risk score of 0.87 on transaction 3514948 ($111.92) on card C09933-K2. The transaction occurred in-person in billing region 264, which is a familiar region for the cardholder with 2,220 prior purchases. However, the cardholder has a history of confirmed fraud within the last 120 days (cases CC-5521, CC-2834, and CC-2565). A verification request was sent to the customer, but no reply was received within 24 hours.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-007"
   },
   "evidence_requests": [
     {
       "type": "customer_validation",
-      "asked_after_step": 7,
+      "asked_after_step": 9,
       "assumed_response": "No reply from the customer within 24 hours"
+    },
+    {
+      "type": "analyst_info",
+      "asked_after_step": 11,
+      "assumed_response": "Analyst acknowledged the request for merchant / terminal records; review pending, no additional facts within the investigation window"
     }
   ],
   "next_best_actions": {
@@ -117,7 +122,7 @@
         "reason": "R4: no reply within 24 hours; raise monitoring for 72 hours"
       }
     ],
-    "what_changed": "The final actions changed from VERIFY_WITH_CUSTOMER to DECLINE_TRANSACTION because the customer failed to respond to the verification request within 24 hours."
+    "what_changed": "The final actions shifted to DECLINE_TRANSACTION and MONITOR_CARD because the customer did not respond to the verification request within 24 hours."
   },
   "sar": {
     "file": false,
@@ -127,8 +132,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "In accordance with policy section R4, the investigation was resolved by declining the transaction and monitoring the card without escalation, as the customer did not reply within 24 hours and the exposure of $111.92 is below the $500 threshold.",
-  "tool_calls": 11,
-  "tokens": 4876,
-  "latency_s": 62.1
+  "stop_reason": "Pursuant to policy section 6, the investigation was concluded under rule R4 because the customer failed to respond to the verification request within 24 hours.",
+  "tool_calls": 12,
+  "tokens": 5008,
+  "latency_s": 42.6
 }

@@ -15,7 +15,7 @@
       "title": "flagged transaction in context",
       "detail": "$39.08 in_person product W on C02354-K2 at 2016-11-27 13:41:26; holder C02354-K2|126|-185; device none; region 126",
       "data": null,
-      "t": 0.31
+      "t": 0.57
     },
     {
       "step": 3,
@@ -23,89 +23,165 @@
       "title": "core evidence gathered",
       "detail": "6 graph calls so far",
       "data": null,
-      "t": 1.87
+      "t": 2.14
     },
     {
       "step": 4,
       "kind": "plan",
-      "title": "LLM planner (gemini-3.7-flash) -> prior_cases",
-      "detail": "Investigate the 20 linked prior closed cases to see fraud patterns and context.",
+      "title": "LLM planner (gemini-3.6-flash) -> card_window",
+      "detail": "Inspect surrounding transactions on card C02354-K2 around reported txn 3491361",
       "data": {
-        "card_id": "C02354-K2"
+        "hours_after": 24,
+        "card_id": "C02354-K2",
+        "hours_before": 72,
+        "at": "2016-11-27 13:41:26"
       },
-      "t": 19.22
+      "t": 28.92
     },
     {
       "step": 5,
-      "kind": "memory",
-      "title": "similar cases recalled",
-      "detail": "fingerprint top: ['CC-1222', 'CC-2510', 'CC-4938', 'CC-0140', 'CC-4441']; narrative top: ['CC-3168', 'CC-0413', 'CC-3917']; agent cases: ['HHG-014', 'HHG-002', 'HHG-017']",
-      "data": null,
-      "t": 20.28
+      "kind": "plan",
+      "title": "LLM planner (gemini-3.6-flash) -> prior_cases",
+      "detail": "Check prior closed cases on card C02354-K2 to understand history of confirmed fraud vs cleared cases",
+      "data": {
+        "card_id": "C02354-K2"
+      },
+      "t": 29.19
     },
     {
       "step": 6,
+      "kind": "memory",
+      "title": "similar cases recalled",
+      "detail": "fingerprint top: ['CC-1222', 'CC-2510', 'CC-4938', 'CC-0140', 'CC-4441']; narrative top: ['CC-3168', 'CC-0413', 'CC-3917']; agent cases: ['HHG-014', 'HHG-015', 'HHG-006']",
+      "data": null,
+      "t": 30.28
+    },
+    {
+      "step": 7,
       "kind": "assess",
       "title": "initial assessment: p=0.59, pattern out_of_region_use",
       "detail": "2 independent evidence line(s); single-signal=True; exposure $124.08",
       "data": null,
-      "t": 20.28
+      "t": 30.28
     },
     {
-      "step": 7,
+      "step": 8,
       "kind": "decide",
       "title": "initial next-best-action",
       "detail": "VERIFY_WITH_CUSTOMER, CREATE_CASE, MONITOR_CARD",
       "data": null,
-      "t": 20.28
+      "t": 30.28
     },
     {
-      "step": 8,
+      "step": 9,
+      "kind": "action",
+      "title": "initial: executed 3, awaiting approval 0",
+      "detail": "executed: VERIFY_WITH_CUSTOMER, CREATE_CASE, MONITOR_CARD | awaiting approval: -",
+      "data": [
+        {
+          "stage": "initial",
+          "action": "VERIFY_WITH_CUSTOMER",
+          "route": "auto",
+          "status": "executed",
+          "system": "notification-service",
+          "detail": "verification request sent (app push + SMS)",
+          "ref": "NOTIFICATION-3c4a8b7b"
+        },
+        {
+          "stage": "initial",
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "status": "executed",
+          "system": "case-system",
+          "detail": "case opened and written to TigerGraph",
+          "ref": "CASE-54a4b1de"
+        },
+        {
+          "stage": "initial",
+          "action": "MONITOR_CARD",
+          "route": "auto",
+          "status": "executed",
+          "system": "risk-engine",
+          "detail": "card sensitivity raised for 72 hours",
+          "ref": "RISK-4c96b42b"
+        }
+      ],
+      "t": 30.28
+    },
+    {
+      "step": 10,
       "kind": "request",
       "title": "evidence requested: customer_validation",
       "detail": "probability 0.59 (policy R1/section 5)",
       "data": null,
-      "t": 20.28
+      "t": 30.55
     },
     {
-      "step": 9,
+      "step": 11,
       "kind": "response",
       "title": "assumed response recorded",
       "detail": "Customer confirms they did not make the purchase(s), still has the card, and no one else uses it",
       "data": null,
-      "t": 20.28
+      "t": 30.55
     },
     {
-      "step": 10,
+      "step": 12,
       "kind": "assess",
       "title": "re-assessment: p=0.93 -> verdict fraud",
       "detail": "pattern out_of_region_use",
       "data": null,
-      "t": 20.28
+      "t": 30.55
     },
     {
-      "step": 11,
+      "step": 13,
       "kind": "decide",
       "title": "final next-best-action",
       "detail": "BLOCK_CARD, CREATE_CASE",
       "data": null,
-      "t": 20.28
+      "t": 30.55
     },
     {
-      "step": 12,
+      "step": 14,
+      "kind": "action",
+      "title": "final: executed 1, awaiting approval 1",
+      "detail": "executed: CREATE_CASE | awaiting approval: BLOCK_CARD (L1)",
+      "data": [
+        {
+          "stage": "final",
+          "action": "BLOCK_CARD",
+          "route": "L1",
+          "status": "pending_approval",
+          "system": "approval-queue",
+          "detail": "awaiting team lead (L1)",
+          "ref": "APR-c4ed1c39"
+        },
+        {
+          "stage": "final",
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "status": "executed",
+          "system": "case-system",
+          "detail": "case opened and written to TigerGraph",
+          "ref": "CASE-179a6b96"
+        }
+      ],
+      "t": 30.55
+    },
+    {
+      "step": 15,
       "kind": "write",
-      "title": "case text written by the LLM (gemini-3.5-flash) from graph evidence + retrieved context",
+      "title": "case text written by the LLM (gemini-3.6-flash) from graph evidence + retrieved context",
       "detail": "9 retrieved passages",
       "data": null,
-      "t": 44.87
+      "t": 53.9
     },
     {
-      "step": 13,
+      "step": 16,
       "kind": "memory",
       "title": "case written to the graph",
       "detail": "CASE-2016-018 + events, links and vectors",
       "data": null,
-      "t": 51.04
+      "t": 60.96
     }
   ],
   "facts": {
@@ -174,7 +250,7 @@
     "evidence_requests": [
       {
         "type": "customer_validation",
-        "asked_after_step": 7,
+        "asked_after_step": 9,
         "assumed_response": "Customer confirms they did not make the purchase(s), still has the card, and no one else uses it"
       }
     ],
@@ -198,6 +274,53 @@
       "CC-1450"
     ]
   },
+  "actions": [
+    {
+      "stage": "initial",
+      "action": "VERIFY_WITH_CUSTOMER",
+      "route": "auto",
+      "status": "executed",
+      "system": "notification-service",
+      "detail": "verification request sent (app push + SMS)",
+      "ref": "NOTIFICATION-3c4a8b7b"
+    },
+    {
+      "stage": "initial",
+      "action": "CREATE_CASE",
+      "route": "auto",
+      "status": "executed",
+      "system": "case-system",
+      "detail": "case opened and written to TigerGraph",
+      "ref": "CASE-54a4b1de"
+    },
+    {
+      "stage": "initial",
+      "action": "MONITOR_CARD",
+      "route": "auto",
+      "status": "executed",
+      "system": "risk-engine",
+      "detail": "card sensitivity raised for 72 hours",
+      "ref": "RISK-4c96b42b"
+    },
+    {
+      "stage": "final",
+      "action": "BLOCK_CARD",
+      "route": "L1",
+      "status": "pending_approval",
+      "system": "approval-queue",
+      "detail": "awaiting team lead (L1)",
+      "ref": "APR-c4ed1c39"
+    },
+    {
+      "stage": "final",
+      "action": "CREATE_CASE",
+      "route": "auto",
+      "status": "executed",
+      "system": "case-system",
+      "detail": "case opened and written to TigerGraph",
+      "ref": "CASE-179a6b96"
+    }
+  ],
   "tool_calls": [
     {
       "step": 1,
@@ -205,7 +328,7 @@
       "args": {
         "txn_id": "3491361"
       },
-      "latency_s": 0.312,
+      "latency_s": 0.311,
       "transport": "mcp",
       "digest": "txn 3491361",
       "why": "open the flagged transaction and its neighbours"
@@ -223,7 +346,7 @@
         "product": "W",
         "amount": 39.08
       },
-      "latency_s": 0.271,
+      "latency_s": 0.275,
       "transport": "mcp",
       "digest": "card n=5860 holder n=13",
       "why": "what is normal for this card and this cardholder"
@@ -236,7 +359,7 @@
         "t0": "2016-11-24 13:41:26",
         "t1": "2016-11-28 13:41:26"
       },
-      "latency_s": 0.489,
+      "latency_s": 0.49,
       "transport": "mcp",
       "digest": "175 txns on C02354-K2",
       "why": "activity on the card around the alert"
@@ -250,7 +373,7 @@
         "device_id": "",
         "before_ts": "2016-11-27 13:41:26"
       },
-      "latency_s": 0.263,
+      "latency_s": 0.267,
       "transport": "mcp",
       "digest": "20 closed, 0 agent cases",
       "why": "case memory linked by card, holder, device"
@@ -264,7 +387,7 @@
         "at_ts": "2016-11-27 13:41:26",
         "window_h": 72
       },
-      "latency_s": 0.275,
+      "latency_s": 0.271,
       "transport": "mcp",
       "digest": "prior in region=565",
       "why": "has this card been billed in this region before"
@@ -280,13 +403,26 @@
         "amount": 39.08,
         "before_ts": "2016-11-27 13:41:26"
       },
-      "latency_s": 0.265,
+      "latency_s": 0.27,
       "transport": "mcp",
       "digest": "0 holder / 17 card repeats",
       "why": "is this a repeating payment of the cardholder (R7)"
     },
     {
       "step": 3,
+      "tool": "card_window",
+      "args": {
+        "card_id": "C02354-K2",
+        "t0": "2016-11-24 13:41:26",
+        "t1": "2016-11-28 13:41:26"
+      },
+      "latency_s": 1.257,
+      "transport": "mcp",
+      "digest": "175 txns on C02354-K2",
+      "why": "Inspect surrounding transactions on card C02354-K2 around reported txn 3491361"
+    },
+    {
+      "step": 4,
       "tool": "prior_cases",
       "args": {
         "card_id": "C02354-K2",
@@ -294,13 +430,13 @@
         "device_id": "",
         "before_ts": "2016-11-27 13:41:26"
       },
-      "latency_s": 1.06,
+      "latency_s": 0.275,
       "transport": "mcp",
       "digest": "20 closed, 0 agent cases",
-      "why": "Investigate the 20 linked prior closed cases to see fraud patterns and context."
+      "why": "Check prior closed cases on card C02354-K2 to understand history of confirmed fraud vs cleared cases"
     },
     {
-      "step": 4,
+      "step": 5,
       "tool": "similar_cases_fp",
       "args": {
         "qv": [
@@ -323,13 +459,13 @@
         ],
         "k": 12
       },
-      "latency_s": 0.257,
+      "latency_s": 0.27,
       "transport": "mcp",
       "digest": "12 by fingerprint",
       "why": "closed episodes with the same behavioural shape"
     },
     {
-      "step": 4,
+      "step": 5,
       "tool": "similar_cases_text",
       "args": {
         "qv": [
@@ -720,13 +856,13 @@
         ],
         "k": 6
       },
-      "latency_s": 0.259,
+      "latency_s": 0.262,
       "transport": "mcp",
       "digest": "6 by narrative",
       "why": "closed cases with a similar narrative"
     },
     {
-      "step": 4,
+      "step": 5,
       "tool": "similar_agent_cases",
       "args": {
         "qv": [
@@ -749,13 +885,13 @@
         ],
         "k": 5
       },
-      "latency_s": 0.256,
+      "latency_s": 0.255,
       "transport": "mcp",
       "digest": "5 agent cases",
       "why": "the agent's own earlier cases with the same shape"
     },
     {
-      "step": 4,
+      "step": 5,
       "tool": "search_knowledge",
       "args": {
         "qv": [
@@ -1146,7 +1282,7 @@
         ],
         "k": 6
       },
-      "latency_s": 0.256,
+      "latency_s": 0.265,
       "transport": "mcp",
       "digest": "6 chunks",
       "why": "policy rules, typologies and regulatory guidance for this situation"

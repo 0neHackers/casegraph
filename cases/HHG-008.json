@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_fraud",
     "verdict": "fraud",
-    "fraud_probability": 0.9,
+    "fraud_probability": 0.88,
     "pattern": "card_not_present_fraud",
     "pattern_description": "",
     "affected_txn_ids": [
@@ -21,18 +21,6 @@
         "entity_ids": [
           "C13171",
           "3558054"
-        ]
-      },
-      {
-        "claim": "On C13171-K2, the shared device made 6 purchase(s) totalling $286.84; average case-memory score 0.37",
-        "source": "graph",
-        "ref": "query:card_window(card_id=C13171-K2)",
-        "entity_ids": [
-          "C13171-K2",
-          "3551233",
-          "3553275",
-          "3554288",
-          "3557979"
         ]
       },
       {
@@ -79,7 +67,7 @@
       "CC-3642",
       "CC-5525"
     ],
-    "summary": "Customer C13171 reported an unauthorized online transaction of $55.68 on card C13171-K2 occurring on 2016-12-19. Investigation revealed a total of six transactions totaling $286.84 from a Chrome 66.0 device profile. The card has a history of 18 prior fraud cases, and behavioral analysis shows 100% of similar historical cases were confirmed fraud. Based on the customer's denial and the high probability of fraud, the card has been blocked.",
+    "summary": "Customer C13171 reported an unauthorized online transaction of $55.68 on card C13171-K2 occurring on 2016-12-19. The transaction, ID 3558054, was conducted via a Chrome 66.0 browser and flagged with a model probability of 0.63. This card has a significant history of 18 prior confirmed-fraud cases, including CC-5010. Based on the customer's denial and the transaction's inconsistency with their profile, the activity is confirmed as card-not-present fraud.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-008"
   },
@@ -119,8 +107,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Per policy section 6, the investigation is concluded as the card has been blocked and a case created following a confirmed customer denial (R2).",
-  "tool_calls": 13,
-  "tokens": 5069,
-  "latency_s": 17.1
+  "stop_reason": "The investigation is concluded under policy section 6 following rule R2, as the customer denied the transaction and the card was blocked.",
+  "tool_calls": 11,
+  "tokens": 4979,
+  "latency_s": 33.6
 }

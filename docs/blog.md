@@ -52,9 +52,10 @@ transactions on the same card: **2.3%**.
 ## Architecture
 
 ```
-trigger → open case → gather (GSQL via MCP) → LLM planner: more tools? → analyse (signals + ring WCC)
+trigger → open case → gather (GSQL via MCP) → LLM planner: more tools? → analyse (signals + ring + Louvain)
         → recall memory (graph links + TigerVector) → uncertain? → request evidence → re-assess
-        → final actions (policy engine) → case text (LLM + GraphRAG) → persist case into the graph
+        → final actions (policy engine) → action desk (auto executed, L1/L2 queued)
+        → case text (LLM + GraphRAG) → persist case into the graph
 ```
 
 Four layers, with a clear split of responsibilities:
@@ -90,7 +91,14 @@ so one command works for both Savanna and a local Community Edition container.
 - `prior_cases` is case memory by graph proximity: closed cases and the agent's own cases linked by
   card, holder or device.
 
-**A graph algorithm.** `device_ring` runs label-propagation connected components on the
+**Graph algorithms.** A nightly-style job runs TigerGraph's own algorithm library, `GDBMS_ALGO`,
+over an undirected projection: cardholders linked to the device profiles they used, weighted by
+transaction count. `community.louvain` finds 1,245 communities and `community.wcc` the connected
+components; both are written onto the vertices. During an investigation, `device_community` reads the
+alert device's community and how much confirmed fraud it had produced *before the alert*. On HHG-014
+the SM-G935F profile sits in a 110-holder, single-device community, which becomes a line of evidence.
+
+For the time-bounded question ("who shared this device this fortnight?") `device_ring` runs label-propagation connected components on the
 Holder ↔ DeviceProfile graph inside a time window. Two filters make it useful. It works on Holders,
 because an issuer-bucket "card" would bridge unrelated devices. And it only keeps *specific* device
 profiles, so "Windows | Chrome" does not glue ten thousand customers together. On benchmark case

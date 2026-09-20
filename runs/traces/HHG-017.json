@@ -15,7 +15,7 @@
       "title": "flagged transaction in context",
       "detail": "$100.09 online product R on C04570-K1 at 2016-11-11 23:46:24; holder C04570-K1|204|132; device Windows | Windows 10 | chrome 65.0 | 1920x1080; region 204",
       "data": null,
-      "t": 1.4
+      "t": 1.73
     },
     {
       "step": 3,
@@ -23,33 +23,33 @@
       "title": "core evidence gathered",
       "detail": "6 graph calls so far",
       "data": null,
-      "t": 2.94
+      "t": 3.31
     },
     {
       "step": 4,
       "kind": "plan",
       "title": "LLM planner (gemini-3.8-flash) -> prior_cases",
-      "detail": "Check details of the 9 prior closed cases linked to card C04570-K1",
+      "detail": "Check prior cases linked to card C04570-K1 to see details of the 7 confirmed fraud cases.",
       "data": {
         "card_id": "C04570-K1"
       },
-      "t": 5.66
+      "t": 6.35
     },
     {
       "step": 5,
       "kind": "memory",
       "title": "similar cases recalled",
-      "detail": "fingerprint top: ['CC-1361', 'CC-0690', 'CC-3725', 'CC-1113', 'CC-2982']; narrative top: ['CC-2985', 'CC-2649', 'CC-1008']; agent cases: []",
+      "detail": "fingerprint top: ['CC-1361', 'CC-0593', 'CC-4529', 'CC-0435', 'CC-0690']; narrative top: ['CC-2985', 'CC-2649', 'CC-1008']; agent cases: []",
       "data": null,
-      "t": 7.04
+      "t": 7.92
     },
     {
       "step": 6,
       "kind": "assess",
       "title": "initial assessment: p=0.04, pattern none",
-      "detail": "2 independent evidence line(s); single-signal=True; exposure $100.09",
+      "detail": "3 independent evidence line(s); single-signal=True; exposure $100.09",
       "data": null,
-      "t": 7.04
+      "t": 7.92
     },
     {
       "step": 7,
@@ -57,39 +57,66 @@
       "title": "initial next-best-action",
       "detail": "ALLOW_TRANSACTION, CLOSE_NO_FRAUD",
       "data": null,
-      "t": 7.04
+      "t": 7.92
     },
     {
       "step": 8,
+      "kind": "action",
+      "title": "initial: executed 2, awaiting approval 0",
+      "detail": "executed: ALLOW_TRANSACTION, CLOSE_NO_FRAUD | awaiting approval: -",
+      "data": [
+        {
+          "stage": "initial",
+          "action": "ALLOW_TRANSACTION",
+          "route": "auto",
+          "status": "executed",
+          "system": "authorisation-service",
+          "detail": "authorisation released",
+          "ref": "AUTHORISATION-5ea4001f"
+        },
+        {
+          "stage": "initial",
+          "action": "CLOSE_NO_FRAUD",
+          "route": "auto",
+          "status": "executed",
+          "system": "case-system",
+          "detail": "alert closed as legitimate",
+          "ref": "CASE-6e30ad01"
+        }
+      ],
+      "t": 7.92
+    },
+    {
+      "step": 9,
       "kind": "assess",
       "title": "re-assessment: p=0.04 -> verdict legitimate",
       "detail": "pattern none",
       "data": null,
-      "t": 7.04
+      "t": 8.18
     },
     {
-      "step": 9,
+      "step": 10,
       "kind": "decide",
       "title": "final next-best-action",
       "detail": "ALLOW_TRANSACTION, CLOSE_NO_FRAUD",
       "data": null,
-      "t": 7.04
+      "t": 8.18
     },
     {
-      "step": 10,
+      "step": 11,
       "kind": "write",
       "title": "case text written by the LLM (gemini-3.5-flash) from graph evidence + retrieved context",
       "detail": "9 retrieved passages",
       "data": null,
-      "t": 46.88
+      "t": 57.69
     },
     {
-      "step": 11,
+      "step": 12,
       "kind": "memory",
       "title": "case written to the graph",
       "detail": "CASE-2016-017 + events, links and vectors",
       "data": null,
-      "t": 54.17
+      "t": 63.98
     }
   ],
   "facts": {
@@ -119,6 +146,7 @@
     "p_final": 0.04,
     "evidence": [
       "The device profile was already used 2 time(s) by this cardholder before the alert",
+      "Of the 8 closed episodes closest in behavioural fingerprint, 4 were confirmed fraud (mostly card_not_present_fraud) and 4 were cleared (history base rate: 84% of closed cases are fraud)",
       "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3450629 at 0.02; the bank's risk score is 0.57. Both are inputs, not a verdict"
     ],
     "episode": [],
@@ -139,13 +167,33 @@
     "sar_reason": "No report: fraud is not confirmed or strongly suspected (section 3a).",
     "similar_prior_cases": [
       "CC-1361",
+      "CC-0593",
+      "CC-4529",
+      "CC-0435",
       "CC-0690",
-      "CC-3725",
-      "CC-1113",
-      "CC-2982",
       "CC-2985"
     ]
   },
+  "actions": [
+    {
+      "stage": "initial",
+      "action": "ALLOW_TRANSACTION",
+      "route": "auto",
+      "status": "executed",
+      "system": "authorisation-service",
+      "detail": "authorisation released",
+      "ref": "AUTHORISATION-5ea4001f"
+    },
+    {
+      "stage": "initial",
+      "action": "CLOSE_NO_FRAUD",
+      "route": "auto",
+      "status": "executed",
+      "system": "case-system",
+      "detail": "alert closed as legitimate",
+      "ref": "CASE-6e30ad01"
+    }
+  ],
   "tool_calls": [
     {
       "step": 1,
@@ -153,7 +201,7 @@
       "args": {
         "txn_id": "3450629"
       },
-      "latency_s": 1.394,
+      "latency_s": 0.333,
       "transport": "mcp",
       "digest": "txn 3450629",
       "why": "open the flagged transaction and its neighbours"
@@ -171,7 +219,7 @@
         "product": "R",
         "amount": 100.09
       },
-      "latency_s": 0.267,
+      "latency_s": 0.273,
       "transport": "mcp",
       "digest": "card n=52 holder n=2",
       "why": "what is normal for this card and this cardholder"
@@ -184,7 +232,7 @@
         "t0": "2016-11-08 23:46:24",
         "t1": "2016-11-12 23:46:24"
       },
-      "latency_s": 0.252,
+      "latency_s": 0.255,
       "transport": "mcp",
       "digest": "3 txns on C04570-K1",
       "why": "activity on the card around the alert"
@@ -198,7 +246,7 @@
         "device_id": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
         "before_ts": "2016-11-11 23:46:24"
       },
-      "latency_s": 0.268,
+      "latency_s": 0.277,
       "transport": "mcp",
       "digest": "9 closed, 0 agent cases",
       "why": "case memory linked by card, holder, device"
@@ -211,7 +259,7 @@
         "t0": "2016-10-28 23:46:24",
         "t1": "2016-11-18 23:46:24"
       },
-      "latency_s": 0.49,
+      "latency_s": 0.502,
       "transport": "mcp",
       "digest": "177 cards on device in window",
       "why": "who else used this device profile around the alert"
@@ -227,7 +275,7 @@
         "amount": 100.09,
         "before_ts": "2016-11-11 23:46:24"
       },
-      "latency_s": 0.266,
+      "latency_s": 0.273,
       "transport": "mcp",
       "digest": "2 holder / 4 card repeats",
       "why": "is this a repeating payment of the cardholder (R7)"
@@ -241,10 +289,10 @@
         "device_id": "",
         "before_ts": "2016-11-11 23:46:24"
       },
-      "latency_s": 0.262,
+      "latency_s": 0.273,
       "transport": "mcp",
       "digest": "1 closed, 0 agent cases",
-      "why": "Check details of the 9 prior closed cases linked to card C04570-K1"
+      "why": "Check prior cases linked to card C04570-K1 to see details of the 7 confirmed fraud cases."
     },
     {
       "step": 4,
@@ -270,7 +318,7 @@
         ],
         "k": 12
       },
-      "latency_s": 0.246,
+      "latency_s": 0.254,
       "transport": "mcp",
       "digest": "12 by fingerprint",
       "why": "closed episodes with the same behavioural shape"
@@ -667,7 +715,7 @@
         ],
         "k": 6
       },
-      "latency_s": 0.249,
+      "latency_s": 0.258,
       "transport": "mcp",
       "digest": "6 by narrative",
       "why": "closed cases with a similar narrative"
@@ -696,7 +744,7 @@
         ],
         "k": 5
       },
-      "latency_s": 0.245,
+      "latency_s": 0.253,
       "transport": "mcp",
       "digest": "0 agent cases",
       "why": "the agent's own earlier cases with the same shape"
@@ -1093,7 +1141,7 @@
         ],
         "k": 6
       },
-      "latency_s": 0.248,
+      "latency_s": 0.257,
       "transport": "mcp",
       "digest": "6 chunks",
       "why": "policy rules, typologies and regulatory guidance for this situation"
@@ -1131,8 +1179,8 @@
       "signal": "known_device"
     },
     {
-      "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 7 were confirmed fraud (mostly card_not_present_fraud) and 1 were cleared (history base rate: 84% of closed cases are fraud)",
-      "weight": 0.07,
+      "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 4 were confirmed fraud (mostly card_not_present_fraud) and 4 were cleared (history base rate: 84% of closed cases are fraud)",
+      "weight": -0.3,
       "group": "memory",
       "signal": "fp_vote"
     }

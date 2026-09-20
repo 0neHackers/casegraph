@@ -15,7 +15,7 @@
       "title": "flagged transaction in context",
       "detail": "$100.07 online product R on C02923-K1 at 2016-12-07 21:38:37; holder C02923-K1|330|158; device iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768; region 330",
       "data": null,
-      "t": 0.37
+      "t": 0.57
     },
     {
       "step": 3,
@@ -23,17 +23,17 @@
       "title": "core evidence gathered",
       "detail": "6 graph calls so far",
       "data": null,
-      "t": 1.72
+      "t": 1.86
     },
     {
       "step": 4,
       "kind": "plan",
       "title": "LLM planner (gemini-3.5-flash) -> prior_cases",
-      "detail": "Review prior cases on the flagged card to see if there is a pattern of fraud or if it was cleared.",
+      "detail": "Check prior cases on the flagged card to see if there is a history of fraud or cleared cases.",
       "data": {
         "card_id": "C02923-K1"
       },
-      "t": 15.56
+      "t": 7.95
     },
     {
       "step": 5,
@@ -41,7 +41,7 @@
       "title": "similar cases recalled",
       "detail": "fingerprint top: ['CC-0823', 'CC-1239', 'CC-1345', 'CC-1785', 'CC-3036']; narrative top: ['CC-1008', 'CC-1006', 'CC-0641']; agent cases: ['HHG-020', 'HHG-015', 'HHG-006']",
       "data": null,
-      "t": 16.63
+      "t": 8.98
     },
     {
       "step": 6,
@@ -49,7 +49,7 @@
       "title": "initial assessment: p=0.04, pattern none",
       "detail": "1 independent evidence line(s); single-signal=True; exposure $100.07",
       "data": null,
-      "t": 16.63
+      "t": 8.98
     },
     {
       "step": 7,
@@ -57,55 +57,127 @@
       "title": "initial next-best-action",
       "detail": "STEP_UP_AUTH, VERIFY_WITH_CUSTOMER, CREATE_CASE, MONITOR_CARD",
       "data": null,
-      "t": 16.63
+      "t": 8.98
     },
     {
       "step": 8,
+      "kind": "action",
+      "title": "initial: executed 4, awaiting approval 0",
+      "detail": "executed: STEP_UP_AUTH, VERIFY_WITH_CUSTOMER, CREATE_CASE, MONITOR_CARD | awaiting approval: -",
+      "data": [
+        {
+          "stage": "initial",
+          "action": "STEP_UP_AUTH",
+          "route": "auto",
+          "status": "executed",
+          "system": "auth-service",
+          "detail": "one-time-passcode challenge armed on the card",
+          "ref": "AUTH-19f2840f"
+        },
+        {
+          "stage": "initial",
+          "action": "VERIFY_WITH_CUSTOMER",
+          "route": "auto",
+          "status": "executed",
+          "system": "notification-service",
+          "detail": "verification request sent (app push + SMS)",
+          "ref": "NOTIFICATION-83064754"
+        },
+        {
+          "stage": "initial",
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "status": "executed",
+          "system": "case-system",
+          "detail": "case opened and written to TigerGraph",
+          "ref": "CASE-405da54a"
+        },
+        {
+          "stage": "initial",
+          "action": "MONITOR_CARD",
+          "route": "auto",
+          "status": "executed",
+          "system": "risk-engine",
+          "detail": "card sensitivity raised for 72 hours",
+          "ref": "RISK-3f606de4"
+        }
+      ],
+      "t": 8.98
+    },
+    {
+      "step": 9,
       "kind": "request",
       "title": "evidence requested: customer_validation",
       "detail": "probability 0.04 (policy R1/R7)",
       "data": null,
-      "t": 16.63
+      "t": 9.23
     },
     {
-      "step": 9,
+      "step": 10,
       "kind": "response",
       "title": "assumed response recorded",
       "detail": "Customer confirms the purchase and that they are using a new device; device added to profile",
       "data": null,
-      "t": 16.63
+      "t": 9.23
     },
     {
-      "step": 10,
+      "step": 11,
       "kind": "assess",
       "title": "re-assessment: p=0.04 -> verdict legitimate",
       "detail": "pattern none",
       "data": null,
-      "t": 16.63
+      "t": 9.23
     },
     {
-      "step": 11,
+      "step": 12,
       "kind": "decide",
       "title": "final next-best-action",
       "detail": "ALLOW_TRANSACTION, CLOSE_NO_FRAUD",
       "data": null,
-      "t": 16.63
+      "t": 9.23
     },
     {
-      "step": 12,
+      "step": 13,
+      "kind": "action",
+      "title": "final: executed 2, awaiting approval 0",
+      "detail": "executed: ALLOW_TRANSACTION, CLOSE_NO_FRAUD | awaiting approval: -",
+      "data": [
+        {
+          "stage": "final",
+          "action": "ALLOW_TRANSACTION",
+          "route": "auto",
+          "status": "executed",
+          "system": "authorisation-service",
+          "detail": "authorisation released",
+          "ref": "AUTHORISATION-60ce4a09"
+        },
+        {
+          "stage": "final",
+          "action": "CLOSE_NO_FRAUD",
+          "route": "auto",
+          "status": "executed",
+          "system": "case-system",
+          "detail": "alert closed as legitimate",
+          "ref": "CASE-3aaedf9a"
+        }
+      ],
+      "t": 9.23
+    },
+    {
+      "step": 14,
       "kind": "write",
       "title": "case text written by the LLM (gemini-3.5-flash) from graph evidence + retrieved context",
       "detail": "9 retrieved passages",
       "data": null,
-      "t": 35.46
+      "t": 22.39
     },
     {
-      "step": 13,
+      "step": 15,
       "kind": "memory",
       "title": "case written to the graph",
       "detail": "CASE-2016-005 + events, links and vectors",
       "data": null,
-      "t": 42.03
+      "t": 28.63
     }
   ],
   "facts": {
@@ -148,12 +220,12 @@
     "evidence_requests": [
       {
         "type": "customer_validation",
-        "asked_after_step": 7,
+        "asked_after_step": 8,
         "assumed_response": "Customer confirms the purchase and that they are using a new device; device added to profile"
       },
       {
         "type": "step_up_auth",
-        "asked_after_step": 7,
+        "asked_after_step": 8,
         "assumed_response": "Cardholder completed the one-time passcode on their registered phone"
       }
     ],
@@ -178,6 +250,62 @@
       "CC-1008"
     ]
   },
+  "actions": [
+    {
+      "stage": "initial",
+      "action": "STEP_UP_AUTH",
+      "route": "auto",
+      "status": "executed",
+      "system": "auth-service",
+      "detail": "one-time-passcode challenge armed on the card",
+      "ref": "AUTH-19f2840f"
+    },
+    {
+      "stage": "initial",
+      "action": "VERIFY_WITH_CUSTOMER",
+      "route": "auto",
+      "status": "executed",
+      "system": "notification-service",
+      "detail": "verification request sent (app push + SMS)",
+      "ref": "NOTIFICATION-83064754"
+    },
+    {
+      "stage": "initial",
+      "action": "CREATE_CASE",
+      "route": "auto",
+      "status": "executed",
+      "system": "case-system",
+      "detail": "case opened and written to TigerGraph",
+      "ref": "CASE-405da54a"
+    },
+    {
+      "stage": "initial",
+      "action": "MONITOR_CARD",
+      "route": "auto",
+      "status": "executed",
+      "system": "risk-engine",
+      "detail": "card sensitivity raised for 72 hours",
+      "ref": "RISK-3f606de4"
+    },
+    {
+      "stage": "final",
+      "action": "ALLOW_TRANSACTION",
+      "route": "auto",
+      "status": "executed",
+      "system": "authorisation-service",
+      "detail": "authorisation released",
+      "ref": "AUTHORISATION-60ce4a09"
+    },
+    {
+      "stage": "final",
+      "action": "CLOSE_NO_FRAUD",
+      "route": "auto",
+      "status": "executed",
+      "system": "case-system",
+      "detail": "alert closed as legitimate",
+      "ref": "CASE-3aaedf9a"
+    }
+  ],
   "tool_calls": [
     {
       "step": 1,
@@ -185,7 +313,7 @@
       "args": {
         "txn_id": "3523199"
       },
-      "latency_s": 0.372,
+      "latency_s": 0.312,
       "transport": "mcp",
       "digest": "txn 3523199",
       "why": "open the flagged transaction and its neighbours"
@@ -203,7 +331,7 @@
         "product": "R",
         "amount": 100.07
       },
-      "latency_s": 0.278,
+      "latency_s": 0.264,
       "transport": "mcp",
       "digest": "card n=90 holder n=0",
       "why": "what is normal for this card and this cardholder"
@@ -216,7 +344,7 @@
         "t0": "2016-12-04 21:38:37",
         "t1": "2016-12-08 21:38:37"
       },
-      "latency_s": 0.26,
+      "latency_s": 0.247,
       "transport": "mcp",
       "digest": "1 txns on C02923-K1",
       "why": "activity on the card around the alert"
@@ -230,7 +358,7 @@
         "device_id": "iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768",
         "before_ts": "2016-12-07 21:38:37"
       },
-      "latency_s": 0.278,
+      "latency_s": 0.265,
       "transport": "mcp",
       "digest": "8 closed, 0 agent cases",
       "why": "case memory linked by card, holder, device"
@@ -243,7 +371,7 @@
         "t0": "2016-11-23 21:38:37",
         "t1": "2016-12-14 21:38:37"
       },
-      "latency_s": 0.262,
+      "latency_s": 0.248,
       "transport": "mcp",
       "digest": "2 cards on device in window",
       "why": "who else used this device profile around the alert"
@@ -259,7 +387,7 @@
         "amount": 100.07,
         "before_ts": "2016-12-07 21:38:37"
       },
-      "latency_s": 0.275,
+      "latency_s": 0.265,
       "transport": "mcp",
       "digest": "0 holder / 1 card repeats",
       "why": "is this a repeating payment of the cardholder (R7)"
@@ -273,10 +401,10 @@
         "device_id": "",
         "before_ts": "2016-12-07 21:38:37"
       },
-      "latency_s": 0.277,
+      "latency_s": 0.266,
       "transport": "mcp",
       "digest": "3 closed, 0 agent cases",
-      "why": "Review prior cases on the flagged card to see if there is a pattern of fraud or if it was cleared."
+      "why": "Check prior cases on the flagged card to see if there is a history of fraud or cleared cases."
     },
     {
       "step": 4,
@@ -302,7 +430,7 @@
         ],
         "k": 12
       },
-      "latency_s": 0.259,
+      "latency_s": 0.246,
       "transport": "mcp",
       "digest": "12 by fingerprint",
       "why": "closed episodes with the same behavioural shape"
@@ -699,7 +827,7 @@
         ],
         "k": 6
       },
-      "latency_s": 0.261,
+      "latency_s": 0.25,
       "transport": "mcp",
       "digest": "6 by narrative",
       "why": "closed cases with a similar narrative"
@@ -728,7 +856,7 @@
         ],
         "k": 5
       },
-      "latency_s": 0.258,
+      "latency_s": 0.247,
       "transport": "mcp",
       "digest": "5 agent cases",
       "why": "the agent's own earlier cases with the same shape"
@@ -1125,7 +1253,7 @@
         ],
         "k": 6
       },
-      "latency_s": 0.262,
+      "latency_s": 0.25,
       "transport": "mcp",
       "digest": "6 chunks",
       "why": "policy rules, typologies and regulatory guidance for this situation"

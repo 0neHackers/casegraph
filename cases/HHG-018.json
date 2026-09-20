@@ -85,14 +85,14 @@
       "CC-2589",
       "CC-1450"
     ],
-    "summary": "Investigation HHG-018 was initiated following a customer report from C02354 denying transaction 3491361 ($39.08) on card C02354-K2. The transaction occurred in-person in billing region 126 on 2016-11-27. Although the card has a history of purchases in region 126, the customer confirmed they did not make this purchase, still possess the card, and have not authorized others to use it. This cardholder has experienced four other confirmed out-of-region fraud episodes in the last 120 days (CC-4942, CC-4721, CC-4436, and CC-3537). Based on the customer's denial and prior fraud history, the transaction is confirmed as fraud under the out_of_region_use pattern.",
+    "summary": "Customer C02354 reported an unauthorized in-person transaction 3491361 ($39.08) on card C02354-K2 on 2016-11-27 13:41:26. Upon verification, the cardholder confirmed they did not make or authorize the transaction, bringing the total episode exposure to $124.08 across transactions 3484403, 3485990, and 3491361. The cardholder has a history of confirmed out_of_region_use fraud including cases CC-4942, CC-4721, CC-4436, and CC-3537. Pursuant to policy R2, the card was blocked and a case created.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-018"
   },
   "evidence_requests": [
     {
       "type": "customer_validation",
-      "asked_after_step": 7,
+      "asked_after_step": 9,
       "assumed_response": "Customer confirms they did not make the purchase(s), still has the card, and no one else uses it"
     }
   ],
@@ -126,7 +126,7 @@
         "reason": "Section 3a / R2: fraud probability above 0.30; open the internal case and write it to the graph"
       }
     ],
-    "what_changed": "The initial actions were to verify with the customer and monitor the card, but upon the customer's explicit denial of the transaction, the final action was escalated to block the card and create a case."
+    "what_changed": "Initial actions included customer verification and monitoring. Upon receiving explicit denial of the activity from customer C02354, final actions shifted to blocking card C02354-K2 under policy R2."
   },
   "sar": {
     "file": false,
@@ -136,8 +136,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Per policy section 6, a regulatory report is not required because the total exposure of $124.08 is below the $1,000 threshold, and there is no connection to a shared device profile or another card's fraud.",
-  "tool_calls": 11,
-  "tokens": 5256,
-  "latency_s": 51.0
+  "stop_reason": "Investigation stopped under policy Section 6 as the card was blocked and exposure of $124.08 is below the $1,000 report threshold with no connected cards or shared devices.",
+  "tool_calls": 12,
+  "tokens": 4845,
+  "latency_s": 61.0
 }

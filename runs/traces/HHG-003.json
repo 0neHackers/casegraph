@@ -15,7 +15,7 @@
       "title": "flagged transaction in context",
       "detail": "$49.00 in_person product W on C08623-K2 at 2016-12-10 13:01:21; holder C08623-K2|330|161; device none; region 330",
       "data": null,
-      "t": 0.31
+      "t": 0.57
     },
     {
       "step": 3,
@@ -23,49 +23,49 @@
       "title": "core evidence gathered",
       "detail": "6 graph calls so far",
       "data": null,
-      "t": 1.63
+      "t": 1.89
     },
     {
       "step": 4,
       "kind": "plan",
-      "title": "LLM planner (gemini-3.5-flash) -> prior_cases",
-      "detail": "Check the 6 prior closed cases linked to this card to see if they are related to this dispute or show a pattern of fraud.",
+      "title": "LLM planner (gemini-3.5-flash) -> card_window",
+      "detail": "Examine transactions around the disputed transaction to see if there are other unauthorized charges or patterns.",
       "data": {
-        "card_id": "C08623-K2"
+        "hours_after": 24,
+        "card_id": "C08623-K2",
+        "at": "2016-12-10 13:01:21",
+        "hours_before": 72
       },
-      "t": 11.43
+      "t": 11.13
     },
     {
       "step": 5,
       "kind": "plan",
-      "title": "LLM planner (gemini-3.5-flash) -> card_window",
-      "detail": "Examine the transactions around the flagged transaction to see if there are other unauthorized charges or unusual activity.",
+      "title": "LLM planner (gemini-3.5-flash) -> prior_cases",
+      "detail": "Check details of the 6 prior closed cases linked to this card to see if they involve similar fraud patterns.",
       "data": {
-        "hours_before": 72,
-        "card_id": "C08623-K2",
-        "at": "2016-12-10 13:01:21",
-        "hours_after": 24
+        "card_id": "C08623-K2"
       },
-      "t": 11.68
+      "t": 11.39
     },
     {
       "step": 6,
       "kind": "plan",
       "title": "LLM planner (gemini-3.5-flash) -> region_context",
-      "detail": "Analyze the card's history in region 330 and see if other cards have been hit there.",
+      "detail": "Investigate the card's history in region 330 and see if other cards have been hit there.",
       "data": {
         "card_id": "C08623-K2",
         "region": "330"
       },
-      "t": 11.96
+      "t": 11.67
     },
     {
       "step": 7,
       "kind": "memory",
       "title": "similar cases recalled",
-      "detail": "fingerprint top: ['CC-0341', 'CC-5407', 'CC-4957', 'CC-1502', 'CC-2218']; narrative top: ['CC-4971', 'CC-0444', 'CC-4973']; agent cases: ['HHG-007', 'HHG-018', 'HHG-001']",
+      "detail": "fingerprint top: ['CC-0341', 'CC-5407', 'CC-4957', 'CC-1502', 'CC-2218']; narrative top: ['CC-4971', 'CC-0444', 'CC-4973']; agent cases: ['HHG-001', 'HHG-010', 'HHG-007']",
       "data": null,
-      "t": 12.98
+      "t": 12.69
     },
     {
       "step": 8,
@@ -73,7 +73,7 @@
       "title": "initial assessment: p=0.04, pattern none",
       "detail": "2 independent evidence line(s); single-signal=True; exposure $49.00",
       "data": null,
-      "t": 12.98
+      "t": 12.69
     },
     {
       "step": 9,
@@ -81,55 +81,109 @@
       "title": "initial next-best-action",
       "detail": "VERIFY_WITH_CUSTOMER, CREATE_CASE",
       "data": null,
-      "t": 12.98
+      "t": 12.69
     },
     {
       "step": 10,
+      "kind": "action",
+      "title": "initial: executed 2, awaiting approval 0",
+      "detail": "executed: VERIFY_WITH_CUSTOMER, CREATE_CASE | awaiting approval: -",
+      "data": [
+        {
+          "stage": "initial",
+          "action": "VERIFY_WITH_CUSTOMER",
+          "route": "auto",
+          "status": "executed",
+          "system": "notification-service",
+          "detail": "verification request sent (app push + SMS)",
+          "ref": "NOTIFICATION-8bb4a5c0"
+        },
+        {
+          "stage": "initial",
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "status": "executed",
+          "system": "case-system",
+          "detail": "case opened and written to TigerGraph",
+          "ref": "CASE-b8443431"
+        }
+      ],
+      "t": 12.69
+    },
+    {
+      "step": 11,
       "kind": "request",
       "title": "evidence requested: customer_validation",
       "detail": "probability 0.04 (policy R1/R7)",
       "data": null,
-      "t": 12.98
+      "t": 12.94
     },
     {
-      "step": 11,
+      "step": 12,
       "kind": "response",
       "title": "assumed response recorded",
       "detail": "On review of the merchant and date, the customer recognises the purchase (a household/own purchase) and withdraws the dispute",
       "data": null,
-      "t": 12.98
+      "t": 12.94
     },
     {
-      "step": 12,
+      "step": 13,
       "kind": "assess",
       "title": "re-assessment: p=0.04 -> verdict legitimate",
       "detail": "pattern none",
       "data": null,
-      "t": 12.98
+      "t": 12.94
     },
     {
-      "step": 13,
+      "step": 14,
       "kind": "decide",
       "title": "final next-best-action",
       "detail": "CREATE_CASE, CLOSE_NO_FRAUD",
       "data": null,
-      "t": 12.98
-    },
-    {
-      "step": 14,
-      "kind": "write",
-      "title": "case text written by the LLM (gemini-3-flash-preview) from graph evidence + retrieved context",
-      "detail": "9 retrieved passages",
-      "data": null,
-      "t": 25.02
+      "t": 12.94
     },
     {
       "step": 15,
+      "kind": "action",
+      "title": "final: executed 2, awaiting approval 0",
+      "detail": "executed: CREATE_CASE, CLOSE_NO_FRAUD | awaiting approval: -",
+      "data": [
+        {
+          "stage": "final",
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "status": "executed",
+          "system": "case-system",
+          "detail": "case opened and written to TigerGraph",
+          "ref": "CASE-fa5b0471"
+        },
+        {
+          "stage": "final",
+          "action": "CLOSE_NO_FRAUD",
+          "route": "auto",
+          "status": "executed",
+          "system": "case-system",
+          "detail": "alert closed as legitimate",
+          "ref": "CASE-693a709e"
+        }
+      ],
+      "t": 12.94
+    },
+    {
+      "step": 16,
+      "kind": "write",
+      "title": "case text written by the LLM (gemini-3.5-flash) from graph evidence + retrieved context",
+      "detail": "9 retrieved passages",
+      "data": null,
+      "t": 21.67
+    },
+    {
+      "step": 17,
       "kind": "memory",
       "title": "case written to the graph",
       "detail": "CASE-2016-003 + events, links and vectors",
       "data": null,
-      "t": 31.0
+      "t": 28.09
     }
   ],
   "facts": {
@@ -173,7 +227,7 @@
     "evidence_requests": [
       {
         "type": "customer_validation",
-        "asked_after_step": 9,
+        "asked_after_step": 10,
         "assumed_response": "On review of the merchant and date, the customer recognises the purchase (a household/own purchase) and withdraws the dispute"
       }
     ],
@@ -196,6 +250,44 @@
       "CC-4971"
     ]
   },
+  "actions": [
+    {
+      "stage": "initial",
+      "action": "VERIFY_WITH_CUSTOMER",
+      "route": "auto",
+      "status": "executed",
+      "system": "notification-service",
+      "detail": "verification request sent (app push + SMS)",
+      "ref": "NOTIFICATION-8bb4a5c0"
+    },
+    {
+      "stage": "initial",
+      "action": "CREATE_CASE",
+      "route": "auto",
+      "status": "executed",
+      "system": "case-system",
+      "detail": "case opened and written to TigerGraph",
+      "ref": "CASE-b8443431"
+    },
+    {
+      "stage": "final",
+      "action": "CREATE_CASE",
+      "route": "auto",
+      "status": "executed",
+      "system": "case-system",
+      "detail": "case opened and written to TigerGraph",
+      "ref": "CASE-fa5b0471"
+    },
+    {
+      "stage": "final",
+      "action": "CLOSE_NO_FRAUD",
+      "route": "auto",
+      "status": "executed",
+      "system": "case-system",
+      "detail": "alert closed as legitimate",
+      "ref": "CASE-693a709e"
+    }
+  ],
   "tool_calls": [
     {
       "step": 1,
@@ -221,7 +313,7 @@
         "product": "W",
         "amount": 49.0
       },
-      "latency_s": 0.265,
+      "latency_s": 0.268,
       "transport": "mcp",
       "digest": "card n=980 holder n=1",
       "why": "what is normal for this card and this cardholder"
@@ -234,7 +326,7 @@
         "t0": "2016-12-07 13:01:21",
         "t1": "2016-12-11 13:01:21"
       },
-      "latency_s": 0.25,
+      "latency_s": 0.248,
       "transport": "mcp",
       "digest": "27 txns on C08623-K2",
       "why": "activity on the card around the alert"
@@ -248,7 +340,7 @@
         "device_id": "",
         "before_ts": "2016-12-10 13:01:21"
       },
-      "latency_s": 0.265,
+      "latency_s": 0.264,
       "transport": "mcp",
       "digest": "6 closed, 0 agent cases",
       "why": "case memory linked by card, holder, device"
@@ -262,7 +354,7 @@
         "at_ts": "2016-12-10 13:01:21",
         "window_h": 72
       },
-      "latency_s": 0.277,
+      "latency_s": 0.275,
       "transport": "mcp",
       "digest": "prior in region=42",
       "why": "has this card been billed in this region before"
@@ -278,13 +370,26 @@
         "amount": 49.0,
         "before_ts": "2016-12-10 13:01:21"
       },
-      "latency_s": 0.262,
+      "latency_s": 0.264,
       "transport": "mcp",
       "digest": "0 holder / 3 card repeats",
       "why": "is this a repeating payment of the cardholder (R7)"
     },
     {
       "step": 3,
+      "tool": "card_window",
+      "args": {
+        "card_id": "C08623-K2",
+        "t0": "2016-12-07 13:01:21",
+        "t1": "2016-12-11 13:01:21"
+      },
+      "latency_s": 0.252,
+      "transport": "mcp",
+      "digest": "27 txns on C08623-K2",
+      "why": "Examine transactions around the disputed transaction to see if there are other unauthorized charges or patterns."
+    },
+    {
+      "step": 4,
       "tool": "prior_cases",
       "args": {
         "card_id": "C08623-K2",
@@ -292,23 +397,10 @@
         "device_id": "",
         "before_ts": "2016-12-10 13:01:21"
       },
-      "latency_s": 0.264,
+      "latency_s": 0.266,
       "transport": "mcp",
       "digest": "6 closed, 0 agent cases",
-      "why": "Check the 6 prior closed cases linked to this card to see if they are related to this dispute or show a pattern of fraud."
-    },
-    {
-      "step": 4,
-      "tool": "card_window",
-      "args": {
-        "card_id": "C08623-K2",
-        "t0": "2016-12-07 13:01:21",
-        "t1": "2016-12-11 13:01:21"
-      },
-      "latency_s": 0.25,
-      "transport": "mcp",
-      "digest": "27 txns on C08623-K2",
-      "why": "Examine the transactions around the flagged transaction to see if there are other unauthorized charges or unusual activity."
+      "why": "Check details of the 6 prior closed cases linked to this card to see if they involve similar fraud patterns."
     },
     {
       "step": 5,
@@ -319,10 +411,10 @@
         "at_ts": "2016-12-10 13:01:21",
         "window_h": 72
       },
-      "latency_s": 0.278,
+      "latency_s": 0.277,
       "transport": "mcp",
       "digest": "prior in region=42",
-      "why": "Analyze the card's history in region 330 and see if other cards have been hit there."
+      "why": "Investigate the card's history in region 330 and see if other cards have been hit there."
     },
     {
       "step": 6,
@@ -348,7 +440,7 @@
         ],
         "k": 12
       },
-      "latency_s": 0.249,
+      "latency_s": 0.247,
       "transport": "mcp",
       "digest": "12 by fingerprint",
       "why": "closed episodes with the same behavioural shape"
@@ -745,7 +837,7 @@
         ],
         "k": 6
       },
-      "latency_s": 0.249,
+      "latency_s": 0.25,
       "transport": "mcp",
       "digest": "6 by narrative",
       "why": "closed cases with a similar narrative"
@@ -774,7 +866,7 @@
         ],
         "k": 5
       },
-      "latency_s": 0.247,
+      "latency_s": 0.245,
       "transport": "mcp",
       "digest": "5 agent cases",
       "why": "the agent's own earlier cases with the same shape"

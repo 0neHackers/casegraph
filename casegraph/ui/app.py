@@ -169,7 +169,7 @@ if go:
         status.update(label=f"{case_id}: {ans['case']['verdict']} (p={ans['case']['fraud_probability']})",
                       state="complete")
         inv.g.close()
-    st.session_state["live"] = {"answer": ans, "trace": {"events": inv.events, "facts": inv.facts,
+    st.session_state["live"] = {"answer": ans, "trace": {"events": inv.events, "facts": inv.facts, "actions": inv.actions_log,
                                                           "tool_calls": [vars(x) for x in inv.trace.calls],
                                                           "evidence_weights": [{"claim": e.claim, "weight": e.weight,
                                                                                 "group": e.group, "signal": e.signal}
@@ -221,7 +221,13 @@ with tab1:
             st.markdown(f"- **{r['type']}** after step {r['asked_after_step']}: _{esc(r['assumed_response'])}_")
     st.markdown(f"**What changed:** {esc(nba['what_changed'])}")
     st.markdown(f"**Stop reason:** {esc(ans['stop_reason'])}")
-    st.caption("Only `auto` actions may be executed by the agent. L1 = team lead, L2 = fraud manager.")
+    acts = (trace or {}).get("actions") or []
+    if acts:
+        st.markdown("#### Action desk: what the agent executed and what waits for a human")
+        st.dataframe(pd.DataFrame(acts)[["stage", "action", "route", "status", "system", "detail", "ref"]],
+                     hide_index=True, use_container_width=True)
+    st.caption("Only `auto` actions may be executed by the agent (mock bank systems). L1 = team lead, "
+               "L2 = fraud manager: those are queued for approval, never executed.")
 
 with tab2:
     w = pd.DataFrame((trace or {}).get("evidence_weights", []))

@@ -156,6 +156,14 @@ def build(model_scores: Path | None = None) -> None:
                           from txn window w as (partition by card_id order by ts, txn_id)) where nxt is not null)
                     to '{out('e_next.csv')}' (header)""")
 
+    # holder -> device projection for the graph-algorithm library ----------------------
+    # Only devices that link 2..250 cards: a device seen once links nobody, and a generic
+    # profile ("Windows | chrome") would glue thousands of cardholders into one blob.
+    con.execute(f"""copy (select t.holder_id, t.device_id, count(*) n_txn
+                          from txn t join (select device_id from txn where device_id <> '' group by 1
+                                           having count(distinct card_id) between 2 and 250) d using (device_id)
+                          group by 1, 2) to '{out('e_used_device.csv')}' (header)""")
+
     # closed cases ---------------------------------------------------------------
     con.execute(f"""copy (select case_id, customer_id, card_id, opened_at, closed_at, outcome, pattern, first_fraud_txn_id,
                           n_txns, exposure_usd, actions_taken, report_filed, analyst_notes from cc)

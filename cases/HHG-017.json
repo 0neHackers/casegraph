@@ -22,6 +22,21 @@
         ]
       },
       {
+        "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 4 were confirmed fraud (mostly card_not_present_fraud) and 4 were cleared (history base rate: 84% of closed cases are fraud)",
+        "source": "graph",
+        "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
+        "entity_ids": [
+          "CC-1361",
+          "CC-0593",
+          "CC-4529",
+          "CC-0435",
+          "CC-0690",
+          "CC-3601",
+          "CC-3725",
+          "CC-1113"
+        ]
+      },
+      {
         "claim": "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3450629 at 0.02; the bank's risk score is 0.57. Both are inputs, not a verdict",
         "source": "graph",
         "ref": "attr:Transaction(3450629).model_prob,risk_score",
@@ -32,13 +47,13 @@
     ],
     "similar_prior_cases": [
       "CC-1361",
+      "CC-0593",
+      "CC-4529",
+      "CC-0435",
       "CC-0690",
-      "CC-3725",
-      "CC-1113",
-      "CC-2982",
       "CC-2985"
     ],
-    "summary": "Case HHG-017 was triggered by a risk score of 0.57 on online transaction 3450629 ($100.09) for cardholder C04570 on card C04570-K1. Investigation showed the device profile (Windows 10, Chrome 65.0) was already used twice by this cardholder before the alert, despite the anonymous proxy. The case-memory model scored the transaction at 0.02, and the final fraud probability is 0.04. The transaction is deemed legitimate, and the case is closed with no fraud.",
+    "summary": "Case HHG-017 was triggered by a risk score of 0.57 on online transaction 3450629 ($100.09) using card C04570-K1. Although the transaction utilized an anonymous proxy, the device profile had been successfully used twice before by this cardholder. The case-memory model evaluated the transaction at a very low fraud probability of 0.02, and the final assessed probability is 0.04. Consequently, the transaction was determined to be legitimate, and the case was closed with no action taken.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-017"
   },
@@ -68,7 +83,7 @@
         "reason": "Probability <= 0.15 on two independent pieces of evidence (section 6); risk score alone is not a verdict (R1)"
       }
     ],
-    "what_changed": "Nothing."
+    "what_changed": "Nothing; the initial decision to allow the transaction and close the case without fraud was maintained after verifying the customer's prior usage of the device."
   },
   "sar": {
     "file": false,
@@ -78,8 +93,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "The investigation was concluded under Policy Section 6 because the transaction was verified as legitimate, and the low fraud probability of 0.04 did not justify blocking the card under Policy R1.",
+  "stop_reason": "The investigation was stopped and closed as legitimate under Policy R1, as the assessed fraud probability of 0.04 is below the 0.70 threshold for a single weak signal. Policy R6 regarding shared origin does not apply because the device profile is not shared with other fraudulent accounts and has been used previously by this cardholder.",
   "tool_calls": 11,
-  "tokens": 4863,
-  "latency_s": 54.2
+  "tokens": 6176,
+  "latency_s": 64.0
 }

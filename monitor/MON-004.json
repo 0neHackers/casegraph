@@ -68,6 +68,21 @@
         ]
       },
       {
+        "claim": "TigerGraph's Louvain community detection (GDBMS_ALGO) places this device profile in a community of 1148 cardholders, 394 cards and 232 device profile(s); before this alert its cardholders produced 42 confirmed-fraud and 6 cleared closed cases (1.6x the bank-wide rate per cardholder)",
+        "source": "graph",
+        "ref": "algo:GDBMS_ALGO.community.louvain -> query:device_community(community=150995146)",
+        "entity_ids": [
+          "CC-0211",
+          "CC-0307",
+          "CC-0496",
+          "CC-1169",
+          "CC-1401",
+          "CC-1529",
+          "CC-1593",
+          "CC-1962"
+        ]
+      },
+      {
         "claim": "On C12785-K2, the shared device made 2 purchase(s) totalling $300.12; average case-memory score 0.66",
         "source": "graph",
         "ref": "query:card_window(card_id=C12785-K2)",
@@ -121,7 +136,7 @@
       "CC-2980",
       "CC-0572"
     ],
-    "summary": "Cardholder C12785's card C12785-K2 was flagged for two rapid online transactions totaling $300.12 on 2016-12-31. The transactions utilized a device profile ('? | ? | safari 10.0 | ?') shared with eight other cards, a pattern highly indicative of coordinated fraud. Risk models scored the activity at 0.73, and historical data shows that 100% of similar behavioral fingerprints were confirmed fraud. The card was blocked, and a report was filed per policy R2 and R6.",
+    "summary": "Investigation into card C12785-K2 following an autonomous monitor alert for unusual device sharing. Two online transactions totaling $300.12 were conducted on 2016-12-31 using a Safari 10.0 device profile. This device profile is shared with 8 other cards and belongs to a community with a fraud rate 1.6x the bank average. The card has a history of confirmed fraud, and the current activity matches behavioral fingerprints of prior card-not-present fraud cases like CC-3986 and CC-5065.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-M004"
   },
@@ -171,12 +186,12 @@
         "reason": "File: the activity connects to a shared device profile ? | ? | safari 10.0 | ? and other cards (section 3a, R6, R2)."
       }
     ],
-    "what_changed": "nothing"
+    "what_changed": "Nothing."
   },
   "sar": {
     "file": true,
     "reason": "File: the activity connects to a shared device profile ? | ? | safari 10.0 | ? and other cards (section 3a, R6, R2).",
-    "narrative": "Between 2016-12-17 and 2016-12-31, an unusual device profile identified as '? | ? | safari 10.0 | ?' was used to conduct transactions across multiple accounts, including card C12785-K2 held by C12785. On 2016-12-31, two online transactions (IDs 3588461 and 3588462) totaling $300.12 were processed within one minute. This device profile is shared with eight other cards, including C02247-K1, C03784-K1, and C04386-K1, suggesting coordinated unauthorized access. The transactions were flagged by the bank's risk model with scores of 0.73 and 0.70. Similar activity in closed cases CC-3986 and CC-5065 was confirmed as card-not-present fraud. The cardholder has a prior history of fraud (CC-5233), and the current activity lacks legitimate authorization. The rapid succession of transactions from a shared, unusual device is indicative of coordinated unauthorized use. The total exposure for this episode is $300.12. The bank has blocked card C12785-K2 and initiated monitoring on all connected cards. This report is filed due to the connection to a shared device profile and suspected coordinated abuse.",
+    "narrative": "This report details suspicious online activity involving card C12785-K2 and cardholder C12785. On December 31, 2016, two transactions (IDs 3588461 and 3588462) totaling $300.12 were conducted in rapid succession. These transactions were initiated from region 327 through a shared device profile, '? | ? | safari 10.0 | ?', which has been linked to eight other cards. Network analysis places this device within a community of 1,148 cardholders that has a confirmed fraud rate 1.6 times the bank average. The behavioral fingerprint of this activity matches eight prior confirmed fraud cases, including CC-3986 and CC-5065, which involved similar card-not-present patterns. Furthermore, card C12785-K2 has a history of account takeover as documented in case CC-5233. The use of a shared device profile for coordinated online purchases suggests a high probability of fraud. Consequently, the bank has blocked the card and initiated monitoring for all connected accounts. This report is filed due to the connection to a shared device profile and high-risk community.",
     "subjects": [
       "C12785",
       "C12785-K2",
@@ -196,8 +211,8 @@
       "2016-12-31"
     ]
   },
-  "stop_reason": "Per policy section 6, R2 and R6, the card was blocked and a report filed because the activity connects to a shared device profile and other cards' potential fraud.",
-  "tool_calls": 14,
-  "tokens": 7233,
-  "latency_s": 25.2
+  "stop_reason": "The card was blocked and a report filed per policy sections 3a, R6, and R2 because the activity connects to a shared device profile and matches confirmed fraud fingerprints.",
+  "tool_calls": 15,
+  "tokens": 12206,
+  "latency_s": 45.1
 }

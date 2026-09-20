@@ -5,7 +5,7 @@
     "verdict": "fraud",
     "fraud_probability": 0.97,
     "pattern": "undocumented",
-    "pattern_description": "The pattern involves unauthorized card-not-present purchases originating from an identical device profile (Samsung SM-G935F on Chrome 62 for Android) masked behind an anonymous proxy. The scheme affects numerous distinct cardholders whose cards are used on this device without prior history. It was identified through a connected-components graph scan that grouped 28 cards and 59 cardholders sharing the same technical footprint.",
+    "pattern_description": "The undocumented pattern consists of coordinated card-not-present transactions across numerous unrelated cardholders executed from a single device profile (Samsung SM-G935F on Chrome for Android) routed through an anonymous proxy. It affects multiple cardholders whose account credentials have been compromised and used on this newly introduced device. The activity was detected through connected-components and community detection graph scans linking dozens of cards to the same device signature.",
     "affected_txn_ids": [
       "3460634",
       "3478561",
@@ -126,6 +126,17 @@
         ]
       },
       {
+        "claim": "TigerGraph's Louvain community detection (GDBMS_ALGO) places this device profile in a community of 110 cardholders, 52 cards and 1 device profile(s); before this alert its cardholders produced 4 confirmed-fraud and 0 cleared closed cases (1.6x the bank-wide rate per cardholder)",
+        "source": "graph",
+        "ref": "algo:GDBMS_ALGO.community.louvain -> query:device_community(community=150995192)",
+        "entity_ids": [
+          "CC-2649",
+          "CC-2971",
+          "CC-2985",
+          "CC-3035"
+        ]
+      },
+      {
         "claim": "On C13487-K1, the shared device made 1 purchase(s) totalling $74.96; average case-memory score 0.26",
         "source": "graph",
         "ref": "query:card_window(card_id=C13487-K1)",
@@ -160,13 +171,13 @@
     ],
     "similar_prior_cases": [
       "CC-2985",
+      "CC-2971",
       "CC-2649",
       "CC-3035",
-      "CC-2971",
       "CC-3302",
       "CC-2722"
     ],
-    "summary": "Cardholder C13487's card C13487-K1 was flagged via analyst request following suspicious transactions originating from an unusual shared device profile. An investigation revealed three online transactions totaling $439.61 executed between 2016-11-15 and 2016-11-26 from a device marked New to the account and routed through an anonymous proxy. Graph analytics linked this exact device profile to 28 cards and 59 cardholders across 60 transactions totaling $8,868.79. Prior closed cases CC-2649, CC-2971, CC-2985, and CC-3035 confirmed fraud on this identical profile. The card was blocked, connected cards placed under monitoring, and a SAR filing initiated.",
+    "summary": "Cardholder C13487 on card C13487-K1 was flagged via analyst request after transaction 3478561 for $74.96 on 2016-11-22 was conducted from device profile SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080. The device profile was marked New for this account and operated behind an anonymous proxy. Investigation revealed an episode of three online transactions between 2016-11-15 and 2016-11-26 totaling $439.61 across billing region 191. Graph analysis linked this device to 24 other cards and 4 confirmed fraud cases (CC-2649, CC-2971, CC-2985, and CC-3035), warranting card blocking and SAR filing.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-014"
   },
@@ -226,12 +237,12 @@
         "reason": "R9: coordinated / undocumented pattern; hand to an analyst with the evidence"
       }
     ],
-    "what_changed": "Nothing; the final action plan remains identical to the initial actions of blocking the card, monitoring connected cards, escalating to an analyst, and filing a report."
+    "what_changed": "Nothing changed between the initial and final assessments, as the initial actions of blocking the card, escalating to an analyst, monitoring connected cards, and filing a report were fully corroborated by graph connectivity and prior confirmed fraud cases."
   },
   "sar": {
     "file": true,
     "reason": "File: the activity connects to a shared device profile SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080 and other cards; the pattern is coordinated / undocumented (R9) (section 3a, R6, R9, R2).",
-    "narrative": "Between 2016-11-15 and 2016-11-26, card C13487-K1 belonging to customer C13487 was utilized for three unauthorized online transactions totaling $439.61 in billing region 191. The transactions began with authorization 3460634 for $112.37 on 2016-11-15 at 20:30:00, followed by flagged authorization 3478561 for $74.96 on 2016-11-22 at 16:11:00, and authorization 3489320 for $252.28 on 2016-11-26 at 17:39:00. All three transactions were initiated through device profile 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' masked by an anonymous IP proxy. Identity records showed this device had never previously been associated with customer C13487. Knowledge graph analysis linked the same device profile to a cluster of 28 cards, 59 cardholders, and 60 transactions totaling $8,868.79 between 2016-11-14 and 2016-12-04. Similar prior investigations CC-2649, CC-2971, CC-2985, and CC-3035 involving this device profile resulted in confirmed unauthorized fraud reports. The coordinated exploitation of multiple compromised card credentials across an identical anonymous device profile indicates organized card-not-present fraud.",
+    "narrative": "This Suspicious Activity Report involves customer C13487 and card C13487-K1 associated with billing region 191. Between 2016-11-15 and 2016-11-26, three unauthorized card-not-present transactions totaling $439.61 were initiated using card C13487-K1. Specifically, online transaction 3460634 occurred on 2016-11-15 20:30:00 for $112.37, followed by transaction 3478561 on 2016-11-22 16:11:00 for $74.96, and transaction 3489320 on 2016-11-26 17:39:00 for $252.28. All three transactions were conducted online through device profile SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080. Identity records show this device profile was entirely new to cardholder C13487 and operated through an anonymous proxy (IP_PROXY:ANONYMOUS). Graph analytics identified that this identical device profile was shared across 24 other cards between 2016-11-14 and 2016-11-29, including connected cards C01289-K1, C01996-K2, and C02910-K1. Furthermore, historical case analysis linked this device profile to four prior confirmed fraud cases: CC-2649, CC-2971, CC-2985, and CC-3035. The coordinated unauthorized use of compromised card details across multiple accounts from a single anonymous proxy device indicates organized payment card fraud. The bank has blocked card C13487-K1, placed connected cards under monitoring, and filed this report.",
     "subjects": [
       "C13487",
       "C13487-K1",
@@ -268,8 +279,8 @@
       "2016-11-26"
     ]
   },
-  "stop_reason": "In accordance with Policy Section 6, the investigation was concluded because all required containment actions were confirmed, connected cardholder links were established, and evidence met the threshold for mandatory reporting.",
-  "tool_calls": 15,
-  "tokens": 7024,
-  "latency_s": 22.9
+  "stop_reason": "In accordance with Policy Section 6, the investigation was concluded because all relevant transaction episodes, shared device graph components, and prior case precedents were fully analyzed, confirming fraud without requiring customer outreach.",
+  "tool_calls": 16,
+  "tokens": 6905,
+  "latency_s": 29.1
 }

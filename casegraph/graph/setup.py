@@ -4,6 +4,7 @@
     python -m casegraph.graph.setup load        # load data/prepared/*.csv over REST (works on Savanna)
     python -m casegraph.graph.setup queries     # install GSQL queries
     python -m casegraph.graph.setup all
+    python -m casegraph.graph.setup migrate     # add the algorithm projection to an existing graph
 
 Loading goes through the REST++ loading-job endpoint in chunks, so the same
 command works against Savanna and a local Community Edition container.
@@ -48,6 +49,8 @@ JOBS: dict[str, tuple[str, list[str]]] = {
     "ld_cc_inv": ("e_cc_involves.csv", ['TO EDGE CC_INVOLVES VALUES ($"case_id", $"txn_id")']),
     "ld_cc_card": ("e_cc_on_card.csv", ['TO EDGE CC_ON_CARD VALUES ($"case_id", $"card_id")']),
     "ld_cc_conn": ("e_cc_connected.csv", ['TO EDGE CC_CONNECTED VALUES ($"case_id", $"card_id")']),
+    "ld_used_device": ("e_used_device.csv", ['TO EDGE USED_DEVICE VALUES ($"holder_id", $"device_id", $"n_txn")',
+                                             'TO EDGE DEVICE_LINK VALUES ($"holder_id", $"device_id", $"n_txn")']),
 }
 
 
@@ -55,6 +58,21 @@ def gsql(cmd: str, c=None) -> str:
     c = c or conn()
     out = c.gsql(cmd)
     return out if isinstance(out, str) else str(out)
+
+
+def migrate_algorithms() -> None:
+    """Add the USED_DEVICE projection + result attributes to an existing graph (idempotent)."""
+    text = (HERE / "schema.gsql").read_text().replace("@GRAPH@", C.TG_GRAPH)
+    job = text[text.index("CREATE SCHEMA_CHANGE JOB casegraph_algorithms"):]
+    ls = gsql(f"USE GRAPH {C.TG_GRAPH}\nLS")
+    if "DEVICE_LINK" in ls:
+        print("algorithm projection already in schema")
+        return
+    if "USED_DEVICE" in ls:   # graphs migrated before DEVICE_LINK existed
+        job = (f"CREATE SCHEMA_CHANGE JOB casegraph_algo2 FOR GRAPH {C.TG_GRAPH} {{\n"
+               "  ADD UNDIRECTED EDGE DEVICE_LINK (FROM Holder, TO DeviceProfile, weight FLOAT);\n}\n"
+               "RUN SCHEMA_CHANGE JOB casegraph_algo2\nDROP JOB casegraph_algo2")
+    print(gsql(f"USE GRAPH {C.TG_GRAPH}\n{job}")[-600:])
 
 
 def create_schema() -> None:
@@ -100,6 +118,8 @@ def _chunks(path: Path, max_bytes: int):
 
 
 def load(only: list[str] | None = None, chunk_mb: int = 16) -> None:
+    if only:   # named jobs are recreated so a changed definition takes effect
+        gsql(f"USE GRAPH {C.TG_GRAPH}\n" + "\n".join(f"DROP JOB {j}" for j in only))
     create_jobs()
     c = conn()
     for job, (fname, _) in JOBS.items():
@@ -143,6 +163,8 @@ if __name__ == "__main__":
     step = sys.argv[1] if len(sys.argv) > 1 else "all"
     if step in ("schema", "all"):
         create_schema()
+    if step == "migrate":
+        migrate_algorithms()
     if step in ("load", "all"):
         load(sys.argv[2:] or None)
     if step in ("queries", "all"):

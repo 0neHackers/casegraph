@@ -73,6 +73,14 @@
         ]
       },
       {
+        "claim": "TigerGraph's Louvain community detection (GDBMS_ALGO) places this device profile in a community of 9 cardholders, 8 cards and 1 device profile(s); before this alert its cardholders produced 0 confirmed-fraud and 0 cleared closed cases (0.2x the bank-wide rate per cardholder)",
+        "source": "graph",
+        "ref": "algo:GDBMS_ALGO.community.louvain -> query:device_community(community=161480964)",
+        "entity_ids": [
+          "FRD-L09 Build/HUAWEIFRD-L09 | Android 7.0 | chrome 66.0 for android | 1920x1080"
+        ]
+      },
+      {
         "claim": "On C06343-K1, the shared device made 2 purchase(s) totalling $224.86; average case-memory score 0.43",
         "source": "graph",
         "ref": "query:card_window(card_id=C06343-K1)",
@@ -114,7 +122,7 @@
       "CC-2629",
       "CC-3635"
     ],
-    "summary": "Investigation into card C06343-K1 following an automated alert for a shared device profile. Transaction 3576545 ($74.93) and 3573558 ($149.93) were conducted via a Huawei FRD-L09 device profile. This specific device profile was shared by 7 other cards, including C02515-K2 and C13284-K1, within a one-week window in December 2016. The coordinated activity across multiple accounts suggests a card-not-present fraud pattern.",
+    "summary": "Investigation into card C06343-K1 identified two fraudulent online transactions totaling $224.86 on 2016-12-25 and 2016-12-26. The activity was linked to a shared device profile (FRD-L09 Build/HUAWEIFRD-L09) used by seven other cards within a one-week period. This coordinated pattern involved nine cardholders and total transactions of $974.91. The card has been blocked and a SAR filed due to the connection with a shared device and multiple accounts.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-M002"
   },
@@ -164,12 +172,12 @@
         "reason": "File: the activity connects to a shared device profile FRD-L09 Build/HUAWEIFRD-L09 | Android 7.0 | chrome 66.0 for android | 1920x1080 and other cards (section 3a, R6, R2)."
       }
     ],
-    "what_changed": "nothing"
+    "what_changed": "Nothing; the initial and final actions are identical as the evidence confirmed a coordinated fraud pattern."
   },
   "sar": {
     "file": true,
     "reason": "File: the activity connects to a shared device profile FRD-L09 Build/HUAWEIFRD-L09 | Android 7.0 | chrome 66.0 for android | 1920x1080 and other cards (section 3a, R6, R2).",
-    "narrative": "Between 2016-12-22 and 2016-12-29, a single device profile (FRD-L09 Build/HUAWEIFRD-L09) was used to conduct transactions across 8 different card accounts. On 2016-12-26, transaction 3576545 for $74.93 was processed online for cardholder C06343. This cardholder also had a $149.93 transaction (3573558) on 2016-12-25 using the same device. The device profile is unusual, appearing on only 8 cards in a six-month period, all within this specific timeframe. Other connected cards include C02515-K2, C02575-K2, and C13284-K1. The aggregate activity across the 9 cardholders involved 9 transactions totaling $974.91. This pattern of a shared device profile across multiple unrelated accounts is indicative of coordinated card-not-present fraud. The bank has blocked card C06343-K1 and placed connected cards under monitoring. This report is filed due to the connection to a shared device profile and suspected coordinated abuse.",
+    "narrative": "Between 2016-12-22 and 2016-12-29, a specific Huawei device profile (FRD-L09 Build/HUAWEIFRD-L09) was used to conduct online transactions across eight different cards. On 2016-12-25, an unauthorized transaction of $149.93 (ID 3573558) was made on card C06343-K1 belonging to cardholder C06343. This was followed by a second unauthorized transaction of $74.93 (ID 3576545) on 2016-12-26. Analysis revealed that this device was linked to nine cardholders in total, including C02515-K2 and C13284-K1, generating nine transactions amounting to $974.91. The use of a single device across multiple unrelated accounts is a known indicator of coordinated card-not-present fraud. The transactions utilized an anonymous email domain, further suggesting suspicious intent. The bank has blocked card C06343-K1 and initiated monitoring for all connected accounts to prevent further loss. This report is filed because the activity connects to a shared device profile and involves multiple cardholders, meeting the criteria for suspicious coordinated abuse.",
     "subjects": [
       "C06343",
       "C06343-K1",
@@ -188,8 +196,8 @@
       "2016-12-26"
     ]
   },
-  "stop_reason": "Actions taken per Policy R6 regarding shared origin and R2 due to the connection to a shared device profile and other cards' fraud.",
-  "tool_calls": 14,
-  "tokens": 7391,
-  "latency_s": 25.6
+  "stop_reason": "The card was blocked and a report filed under Policy R6 and R2 because the activity connects to a shared device profile and multiple other cards.",
+  "tool_calls": 13,
+  "tokens": 10316,
+  "latency_s": 35.3
 }

@@ -39,7 +39,7 @@ def cmd_run(a) -> None:
         t = time.time()
         ans = inv.investigate(c)
         (out_dir / f"{c['case_id']}.json").write_text(json.dumps(ans, indent=2))
-        trace = {"case_id": c["case_id"], "events": inv.events, "facts": inv.facts,
+        trace = {"case_id": c["case_id"], "events": inv.events, "facts": inv.facts, "actions": inv.actions_log,
                  "tool_calls": [vars(x) for x in inv.trace.calls], "fingerprint": inv.fp,
                  "evidence_weights": [{"claim": e.claim, "weight": e.weight, "group": e.group, "signal": e.signal}
                                       for e in inv.F.evidence]}

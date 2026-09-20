@@ -64,12 +64,18 @@
         ]
       },
       {
-        "claim": "On C11923-K2, the shared device made 1 purchase(s) totalling $131.30; average case-memory score 0.05",
+        "claim": "TigerGraph's Louvain community detection (GDBMS_ALGO) places this device profile in a community of 1148 cardholders, 394 cards and 232 device profile(s); before this alert its cardholders produced 42 confirmed-fraud and 6 cleared closed cases (1.6x the bank-wide rate per cardholder)",
         "source": "graph",
-        "ref": "query:card_window(card_id=C11923-K2)",
+        "ref": "algo:GDBMS_ALGO.community.louvain -> query:device_community(community=150995146)",
         "entity_ids": [
-          "C11923-K2",
-          "3583368"
+          "CC-0211",
+          "CC-0307",
+          "CC-0496",
+          "CC-1169",
+          "CC-1401",
+          "CC-1529",
+          "CC-1593",
+          "CC-1962"
         ]
       },
       {
@@ -116,14 +122,14 @@
       "CC-2742",
       "CC-0413"
     ],
-    "summary": "Customer C11923 reported an unauthorized online transaction of $131.30 on card C11923-K2. Investigation revealed the transaction was made using a new device profile (SM-G610F Build/NRD90M) that has been linked to three other cards within a four-day period. The transaction amount significantly exceeds the cardholder's typical spending pattern. Based on the customer's denial and the shared device profile, the activity is confirmed as fraud.",
+    "summary": "Card not present new device on C11923-K2: 1 transaction(s) totalling $131.30. Device profile 'SM-G610F Build/NRD90M | ? | chrome 66.0 for android | ?' (seen on only 4 cards in six months) was used by 3 other card(s) between 2016-12-28 and 2016-12-31, at amounts close to $131.30; 3 of them marked New or scored high. Customer states they did not make the purchase.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-011"
   },
   "evidence_requests": [
     {
       "type": "customer_validation",
-      "asked_after_step": 9,
+      "asked_after_step": 8,
       "assumed_response": "Customer confirms they did not make the purchase(s), still has the card, and no one else uses it"
     }
   ],
@@ -167,12 +173,12 @@
         "reason": "File: the activity connects to a shared device profile SM-G610F Build/NRD90M | ? | chrome 66.0 for android | ? and other cards (section 3a, R6, R2)."
       }
     ],
-    "what_changed": "The initial recommendation was to verify the transaction with the customer; the final action was escalated to blocking the card and filing a report after the customer denied the charge and a shared device profile was identified."
+    "what_changed": "Customer confirms they did not make the purchase(s), still has the card, and no one else uses it. Probability moved from 0.75 to 0.96, so the recommendation changed from CREATE_CASE, MONITOR_CARD, VERIFY_WITH_CUSTOMER to BLOCK_CARD, CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS."
   },
   "sar": {
     "file": true,
     "reason": "File: the activity connects to a shared device profile SM-G610F Build/NRD90M | ? | chrome 66.0 for android | ? and other cards (section 3a, R6, R2).",
-    "narrative": "On 2016-12-29, an unauthorized online transaction of $131.30 (ID 3583368) was processed on card C11923-K2 belonging to customer C11923. The customer contacted the bank to report they did not authorize this purchase. The transaction was conducted via a mobile device (SM-G610F Build/NRD90M) that was not previously associated with the customer's account. Further analysis of the knowledge graph showed this specific device profile was used to attempt similar transactions on three other cards (C03938-K1, C05595-K1, and C05678-K1) between 2016-12-28 and 2016-12-31. The transaction amount of $131.30 is nearly four times the cardholder's average purchase size. This pattern of using a single new device across multiple unrelated accounts is indicative of a coordinated fraud attempt. The customer confirmed they still possess the physical card and that no authorized users had access to the device. Consequently, the card has been blocked and a report is being filed due to the connection with a shared device profile.",
+    "narrative": "Between 2016-12-29 03:27:44 and 2016-12-29 03:27:44, card C11923-K2 held by customer C11923 was used for 1 online transaction(s) totalling $131.30 (3583368 $131.30). The transactions came from device profile(s) SM-G610F Build/NRD90M | ? | chrome 66.0 for android | ?, which the bank's identity records mark as new to the account. The same device profile was used in the same period on 3 other card(s), including C03938-K1, C05595-K1, C05678-K1, indicating a common actor across cardholders. Customer denied the activity when asked (simulated reply; see evidence_requests). Device profile 'SM-G610F Build/NRD90M | ? | chrome 66.0 for android | ?' (seen on only 4 cards in six months) was used by 3 other card(s) between 2016-12-28 and 2016-12-31, at amounts close to $131.30; 3 of them marked New or scored high. Customer states they did not make the purchase. The activity is suspicious because it departs from the cardholder's established behaviour and matches a known fraud typology. Total suspicious amount: $131.30. The card has been recommended for blocking and reissue and the connected cards placed under monitoring.",
     "subjects": [
       "C11923",
       "C11923-K2",
@@ -187,8 +193,8 @@
       "2016-12-29"
     ]
   },
-  "stop_reason": "Investigation concluded under policy section 6 as the customer confirmed the transaction was unauthorized and the case involves a shared device profile.",
-  "tool_calls": 14,
-  "tokens": 6848,
-  "latency_s": 24.6
+  "stop_reason": "The verification reply settled the question (section 6): probability 0.96 on independent evidence; further graph steps would not change the actions.",
+  "tool_calls": 13,
+  "tokens": 2076,
+  "latency_s": 16.1
 }

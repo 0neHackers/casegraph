@@ -67,19 +67,19 @@
       "CC-3697",
       "CC-3635"
     ],
-    "summary": "Case HHG-002 was initiated following real-time risk scoring of 0.79 on online transaction 3478782 for $292.36 on card C11891-K1 on 2016-11-22 17:27:07. Although the purchase amount was 6.5 times the card's historical average of $44.66, customer validation and step-up authentication were requested. Cardholder C11891 confirmed the activity and successfully verified the transaction using a one-time passcode on their registered phone. The alert has been cleared and the transaction allowed as legitimate.",
+    "summary": "Transaction 3478782 for $292.36 on card C11891-K1 was flagged on 2016-11-22 due to a real-time risk score of 0.79 and an amount 6.5 times the cardholder's historical average. Upon outreach, customer C11891 confirmed making the online purchase and successfully completed step-up authentication via one-time passcode on their registered device. Because the customer verified the transaction and no unauthorized activity was found, the transaction is verified as legitimate. The case is resolved with the transaction allowed and monitoring closed.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-002"
   },
   "evidence_requests": [
     {
       "type": "customer_validation",
-      "asked_after_step": 8,
+      "asked_after_step": 9,
       "assumed_response": "Customer confirms they made the purchase"
     },
     {
       "type": "step_up_auth",
-      "asked_after_step": 8,
+      "asked_after_step": 9,
       "assumed_response": "Cardholder completed the one-time passcode on their registered phone"
     }
   ],
@@ -118,7 +118,7 @@
         "reason": "R3: customer confirmed the transaction"
       }
     ],
-    "what_changed": "Initial actions recommended step-up authentication and customer verification, which were fulfilled when the cardholder confirmed the purchase and passed authentication, changing the final action to allow the transaction and close the case."
+    "what_changed": "Initial precautionary actions were superseded when customer C11891 validated the charge and completed one-time passcode authentication, shifting the disposition to ALLOW_TRANSACTION and closing the case."
   },
   "sar": {
     "file": false,
@@ -128,8 +128,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "The investigation stopped under policy section 6 following affirmative cardholder confirmation and completed step-up authentication, eliminating suspicion of unauthorized activity.",
+  "stop_reason": "Per policy section 6, the investigation concluded after direct customer confirmation and successful step-up authentication resolved the alert, confirming no fraud occurred.",
   "tool_calls": 11,
-  "tokens": 4018,
-  "latency_s": 60.5
+  "tokens": 4414,
+  "latency_s": 48.3
 }

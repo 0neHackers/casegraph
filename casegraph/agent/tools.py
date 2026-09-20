@@ -121,6 +121,12 @@ class Tools:
                       lambda o: f"{len(o[0]['components'])} component(s)", why)
         return out[0]
 
+    def device_community(self, device, before, why="") -> dict:
+        out = self._q("device_community", {"device_id": device, "before_ts": ds(before)},
+                      lambda o: f"community {o[0]['community']}: {o[0]['n_holders']} holders, "
+                                f"{len(o[0]['closed_case_outcome'])} earlier closed cases", why)
+        return out[0]
+
     def recurring_check(self, holder, card, region, product, amount, before, why="") -> dict:
         out = self._q("recurring_check", {"holder_id": holder, "card_id": card, "region": region or "", "product": product,
                                           "amount": float(amount), "before_ts": ds(before)},

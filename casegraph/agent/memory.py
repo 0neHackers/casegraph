@@ -20,6 +20,18 @@ from datetime import datetime
 from casegraph.rag.embed import embed_one
 
 
+def checkpoint(inv, status: str, p: float | None, pattern: str, actions: list[dict] | None) -> None:
+    """Upsert the case vertex mid-investigation so its progression is visible in the graph."""
+    attrs = {"case_ref": inv.case["case_id"], "opened_at": inv.case["opened_at"], "trigger_type": inv.case["trigger_type"],
+             "status": status, "pattern": pattern, "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+    if p is not None:
+        attrs["fraud_probability"] = round(p, 2)
+        attrs["verdict"] = "uncertain"
+    if actions is not None:
+        attrs["initial_actions"] = json.dumps(actions)
+    inv.g.upsert_vertex("InvestigationCase", inv.graph_case_id, attrs)
+
+
 def persist_case(inv, answer: dict, F, episode: list[dict], similar: dict) -> None:
     g, gid, case = inv.g, inv.graph_case_id, answer["case"]
     nba = answer["next_best_actions"]

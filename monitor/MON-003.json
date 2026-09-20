@@ -70,6 +70,14 @@
         ]
       },
       {
+        "claim": "TigerGraph's Louvain community detection (GDBMS_ALGO) places this device profile in a community of 79 cardholders, 71 cards and 9 device profile(s); before this alert its cardholders produced 0 confirmed-fraud and 2 cleared closed cases (0.2x the bank-wide rate per cardholder)",
+        "source": "graph",
+        "ref": "algo:GDBMS_ALGO.community.louvain -> query:device_community(community=160432143)",
+        "entity_ids": [
+          "MacOS | Mac OS X 10_9_5 | chrome 66.0 | 1280x800"
+        ]
+      },
+      {
         "claim": "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly card_not_present_fraud) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
         "source": "graph",
         "ref": "vector:similar_cases_fp(ClosedCase.fp, k=12)",
@@ -110,7 +118,7 @@
       "CC-3654",
       "CC-0066"
     ],
-    "summary": "Investigation into card C13190-K2 following an analyst alert for shared device profiles. Transaction 3562068 for $199.93 on 2016-12-21 was conducted via a MacOS device profile shared with four other cards in a one-week window. A broader scan identified a cluster of 8 cardholders and 16 transactions totaling $3,949.84 linked by two specific device profiles. Given the coordination and similarity to prior confirmed fraud cases like CC-3667, the activity is classified as card-not-present fraud.",
+    "summary": "Transaction 3562068 on card C13190-K2 was flagged as part of a coordinated fraud cluster involving eight cardholders and two shared device profiles. Between December 11, 2016, and January 3, 2017, this group generated 16 transactions totaling $3,949.84. Although the bank's risk score was low, the model probability of 0.6269 and the high similarity to prior confirmed fraud cases like CC-3667 support a fraud verdict. The card was blocked and a report filed per policy R2 and R6.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-M003"
   },
@@ -165,7 +173,7 @@
   "sar": {
     "file": true,
     "reason": "File: the activity connects to a shared 2 device profiles and other cards (section 3a, R6, R2).",
-    "narrative": "Between 2016-12-11 and 2016-12-31, a coordinated series of 16 online transactions totaling $3,949.84 was identified across 8 cardholders. On 2016-12-21, card C13190-K2 was used for a $199.93 purchase (ID 3562068) using a MacOS device profile. This specific device profile was also used by four other cards, including C01519-K1 and C02222-K1, to attempt similar amounts between 2016-12-19 and 2016-12-25. A connected-components scan revealed that these cardholders were further linked by a second shared device, an iOS profile. The MacOS device profile was seen on only 6 cards in six months, yet 4 of those cards showed high-risk activity within a single week. This pattern of multiple unrelated cardholders sharing the same hardware for online purchases is highly suspicious. Similar activity involving shared device profiles was previously confirmed as fraud in cases CC-3667 and CC-1356. The bank has blocked card C13190-K2 and placed connected cards under monitoring to prevent further loss. This report is filed because the activity connects to a shared device profile and coordinated abuse across multiple accounts.",
+    "narrative": "Between December 11, 2016, and January 3, 2017, the bank identified a series of suspicious online transactions involving card C13190-K2 and seven other accounts. On December 21, 2016, transaction 3562068 for $199.93 was conducted using a MacOS device profile (Mac OS X 10_9_5, Chrome 66.0). This specific device profile was found to be shared by four other cardholders\u2014C01519, C02222, C04367, and C06224\u2014within a one-week period. Further analysis linked these accounts to a second device profile (iOS 10.0.2), forming a cluster of 16 transactions totaling $3,949.84. The cardholder C13190 has a prior history of confirmed fraud (CC-5518) involving unrecognized devices. The coordinated use of these two unusual device profiles across multiple unrelated cardholders indicates a sophisticated fraud ring. This activity mirrors patterns observed in previous confirmed fraud cases CC-3667 and CC-1356. The bank has blocked all involved cards and is filing this report due to the high probability of coordinated card-not-present fraud.",
     "subjects": [
       "C13190",
       "C13190-K2",
@@ -185,8 +193,8 @@
       "2016-12-21"
     ]
   },
-  "stop_reason": "Per policy R2 and R6, the card was blocked and a report filed because the transaction connects to a shared device profile and other cards' fraud.",
-  "tool_calls": 12,
-  "tokens": 7062,
-  "latency_s": 24.2
+  "stop_reason": "Actions were taken according to policy section 6, specifically R6 for shared origin and R2 for shared device profiles, to address the coordinated fraud risk.",
+  "tool_calls": 14,
+  "tokens": 10337,
+  "latency_s": 38.4
 }

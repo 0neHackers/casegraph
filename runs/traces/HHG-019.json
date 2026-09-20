@@ -15,74 +15,104 @@
       "title": "flagged transaction in context",
       "detail": "$99.92 online product R on C07987-K2 at 2016-12-01 17:28:53; holder C07987-K2|264|152; device Windows | other | chrome 61.0 | 1280x720; region 264",
       "data": null,
-      "t": 0.31
+      "t": 0.59
     },
     {
       "step": 3,
       "kind": "gather",
       "title": "core evidence gathered",
-      "detail": "7 graph calls so far",
+      "detail": "8 graph calls so far",
       "data": null,
-      "t": 2.5
+      "t": 3.22
     },
     {
       "step": 4,
       "kind": "plan",
-      "title": "LLM planner (gemini-3.7-flash) -> device_neighbors",
-      "detail": "Inspect other cards and closed cases associated with this shared device.",
+      "title": "LLM planner (gemini-3.6-flash) -> device_neighbors",
+      "detail": "Check other cards sharing this device and any associated closed cases or fraud indicators.",
       "data": {
-        "days_before": 14,
-        "days_after": 7,
         "device_id": "Windows | other | chrome 61.0 | 1280x720"
       },
-      "t": 7.21
+      "t": 19.2
     },
     {
       "step": 5,
       "kind": "plan",
-      "title": "LLM planner (gemini-3.7-flash) -> prior_cases",
-      "detail": "Review prior fraud cases on this card.",
+      "title": "LLM planner (gemini-3.6-flash) -> prior_cases",
+      "detail": "Check prior closed cases linked to this card to see if previous fraud was confirmed.",
       "data": {
         "card_id": "C07987-K2"
       },
-      "t": 7.48
+      "t": 19.48
     },
     {
       "step": 6,
-      "kind": "plan",
-      "title": "LLM planner (gemini-3.7-flash) -> card_window",
-      "detail": "Examine transaction patterns around the alert time.",
-      "data": {
-        "card_id": "C07987-K2",
-        "hours_before": 72,
-        "at": "2016-12-01 17:28:53",
-        "hours_after": 24
-      },
-      "t": 7.72
+      "kind": "memory",
+      "title": "similar cases recalled",
+      "detail": "fingerprint top: ['CC-2878', 'CC-3438', 'CC-4613', 'CC-1516', 'CC-1753']; narrative top: ['CC-1115', 'CC-0445', 'CC-2455']; agent cases: ['HHG-014', 'HHG-002', 'HHG-015']",
+      "data": null,
+      "t": 20.53
     },
     {
       "step": 7,
-      "kind": "memory",
-      "title": "similar cases recalled",
-      "detail": "fingerprint top: ['CC-2878', 'CC-3438', 'CC-4613', 'CC-1516', 'CC-1753']; narrative top: ['CC-1115', 'CC-0445', 'CC-2455']; agent cases: ['HHG-014', 'HHG-015', 'HHG-006']",
-      "data": null,
-      "t": 8.73
-    },
-    {
-      "step": 8,
       "kind": "assess",
       "title": "initial assessment: p=0.97, pattern card_not_present_new_device",
       "detail": "3 independent evidence line(s); single-signal=False; exposure $99.92",
       "data": null,
-      "t": 8.73
+      "t": 20.53
     },
     {
-      "step": 9,
+      "step": 8,
       "kind": "decide",
       "title": "initial next-best-action",
       "detail": "BLOCK_CARD, CREATE_CASE, MONITOR_CONNECTED_CARDS, FILE_REPORT",
       "data": null,
-      "t": 8.73
+      "t": 20.53
+    },
+    {
+      "step": 9,
+      "kind": "action",
+      "title": "initial: executed 2, awaiting approval 2",
+      "detail": "executed: CREATE_CASE, MONITOR_CONNECTED_CARDS | awaiting approval: BLOCK_CARD (L1), FILE_REPORT (L2)",
+      "data": [
+        {
+          "stage": "initial",
+          "action": "BLOCK_CARD",
+          "route": "L1",
+          "status": "pending_approval",
+          "system": "approval-queue",
+          "detail": "awaiting team lead (L1)",
+          "ref": "APR-ffde3477"
+        },
+        {
+          "stage": "initial",
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "status": "executed",
+          "system": "case-system",
+          "detail": "case opened and written to TigerGraph",
+          "ref": "CASE-3ff40f00"
+        },
+        {
+          "stage": "initial",
+          "action": "MONITOR_CONNECTED_CARDS",
+          "route": "auto",
+          "status": "executed",
+          "system": "risk-engine",
+          "detail": "4 connected card(s) placed under monitoring",
+          "ref": "RISK-0dd0935f"
+        },
+        {
+          "stage": "initial",
+          "action": "FILE_REPORT",
+          "route": "L2",
+          "status": "pending_approval",
+          "system": "approval-queue",
+          "detail": "awaiting fraud manager (L2)",
+          "ref": "APR-b3ab1e88"
+        }
+      ],
+      "t": 20.53
     },
     {
       "step": 10,
@@ -90,7 +120,7 @@
       "title": "re-assessment: p=0.97 -> verdict fraud",
       "detail": "pattern card_not_present_new_device",
       "data": null,
-      "t": 8.73
+      "t": 20.79
     },
     {
       "step": 11,
@@ -98,7 +128,7 @@
       "title": "final next-best-action",
       "detail": "BLOCK_CARD, CREATE_CASE, MONITOR_CONNECTED_CARDS, FILE_REPORT",
       "data": null,
-      "t": 8.73
+      "t": 20.79
     },
     {
       "step": 12,
@@ -106,7 +136,7 @@
       "title": "case text written by the LLM (gemini-3.5-flash) from graph evidence + retrieved context",
       "detail": "9 retrieved passages",
       "data": null,
-      "t": 53.8
+      "t": 67.83
     },
     {
       "step": 13,
@@ -114,7 +144,7 @@
       "title": "case written to the graph",
       "detail": "CASE-2016-019 + events, links and vectors",
       "data": null,
-      "t": 60.23
+      "t": 74.02
     }
   ],
   "facts": {
@@ -146,7 +176,7 @@
       "Device profile 'Windows | other | chrome 61.0 | 1280x720' (seen on only 5 cards in six months) was used by 4 other card(s) between 2016-11-29 and 2016-12-04, at amounts close to $99.92; 4 of them marked New or scored high",
       "Connected-components scan over cardholders and specific device profiles (2016-11-29 to 2016-12-04) puts this card in a group of 5 cards and 5 cardholders joined by 1 device profile(s): 5 transactions, $500.00, 80% on a device New to the account, 0% behind a proxy",
       "Identity record marks the device New for this account and it has never been seen on this cardholder or card",
-      "On C07987-K2, the shared device made 1 purchase(s) totalling $99.92; average case-memory score 0.63",
+      "TigerGraph's Louvain community detection (GDBMS_ALGO) places this device profile in a community of 5 cardholders, 5 cards and 1 device profile(s); before this alert its cardholders produced 0 confirmed-fraud and 0 cleared closed cases (0.2x the bank-wide rate per cardholder)",
       "Of the 8 closed episodes closest in behavioural fingerprint, 8 were confirmed fraud (mostly card_not_present_new_device) and 0 were cleared (history base rate: 84% of closed cases are fraud)",
       "The card has 3 earlier confirmed-fraud case(s) (most recent CC-5026, out_of_region_use), none involving this cardholder's transactions",
       "Case-memory model (trained only on the bank's closed cases, out-of-time AUC 0.92) puts transaction 3503878 at 0.63; the bank's risk score is 0.90. Both are inputs, not a verdict"
@@ -196,6 +226,44 @@
       "CC-1115"
     ]
   },
+  "actions": [
+    {
+      "stage": "initial",
+      "action": "BLOCK_CARD",
+      "route": "L1",
+      "status": "pending_approval",
+      "system": "approval-queue",
+      "detail": "awaiting team lead (L1)",
+      "ref": "APR-ffde3477"
+    },
+    {
+      "stage": "initial",
+      "action": "CREATE_CASE",
+      "route": "auto",
+      "status": "executed",
+      "system": "case-system",
+      "detail": "case opened and written to TigerGraph",
+      "ref": "CASE-3ff40f00"
+    },
+    {
+      "stage": "initial",
+      "action": "MONITOR_CONNECTED_CARDS",
+      "route": "auto",
+      "status": "executed",
+      "system": "risk-engine",
+      "detail": "4 connected card(s) placed under monitoring",
+      "ref": "RISK-0dd0935f"
+    },
+    {
+      "stage": "initial",
+      "action": "FILE_REPORT",
+      "route": "L2",
+      "status": "pending_approval",
+      "system": "approval-queue",
+      "detail": "awaiting fraud manager (L2)",
+      "ref": "APR-b3ab1e88"
+    }
+  ],
   "tool_calls": [
     {
       "step": 1,
@@ -203,7 +271,7 @@
       "args": {
         "txn_id": "3503878"
       },
-      "latency_s": 0.31,
+      "latency_s": 0.324,
       "transport": "mcp",
       "digest": "txn 3503878",
       "why": "open the flagged transaction and its neighbours"
@@ -221,7 +289,7 @@
         "product": "R",
         "amount": 99.92
       },
-      "latency_s": 0.262,
+      "latency_s": 0.276,
       "transport": "mcp",
       "digest": "card n=219 holder n=0",
       "why": "what is normal for this card and this cardholder"
@@ -234,7 +302,7 @@
         "t0": "2016-11-28 17:28:53",
         "t1": "2016-12-02 17:28:53"
       },
-      "latency_s": 0.245,
+      "latency_s": 0.258,
       "transport": "mcp",
       "digest": "3 txns on C07987-K2",
       "why": "activity on the card around the alert"
@@ -248,7 +316,7 @@
         "device_id": "Windows | other | chrome 61.0 | 1280x720",
         "before_ts": "2016-12-01 17:28:53"
       },
-      "latency_s": 0.264,
+      "latency_s": 0.279,
       "transport": "mcp",
       "digest": "4 closed, 0 agent cases",
       "why": "case memory linked by card, holder, device"
@@ -261,7 +329,7 @@
         "t0": "2016-11-17 17:28:53",
         "t1": "2016-12-08 17:28:53"
       },
-      "latency_s": 0.244,
+      "latency_s": 0.259,
       "transport": "mcp",
       "digest": "5 cards on device in window",
       "why": "who else used this device profile around the alert"
@@ -277,10 +345,22 @@
         "amount": 99.92,
         "before_ts": "2016-12-01 17:28:53"
       },
-      "latency_s": 0.263,
+      "latency_s": 0.278,
       "transport": "mcp",
       "digest": "0 holder / 0 card repeats",
       "why": "is this a repeating payment of the cardholder (R7)"
+    },
+    {
+      "step": 2,
+      "tool": "device_community",
+      "args": {
+        "device_id": "Windows | other | chrome 61.0 | 1280x720",
+        "before_ts": "2016-12-01 17:28:53"
+      },
+      "latency_s": 0.271,
+      "transport": "mcp",
+      "digest": "community 166723865: 5 holders, 0 earlier closed cases",
+      "why": "Louvain community of this device (GDBMS_ALGO)"
     },
     {
       "step": 2,
@@ -291,7 +371,7 @@
         "t0": "2016-11-17 17:28:53",
         "t1": "2016-12-15 17:28:53"
       },
-      "latency_s": 0.916,
+      "latency_s": 1.005,
       "transport": "mcp",
       "digest": "1 component(s)",
       "why": "connected components over cardholders and specific devices"
@@ -304,10 +384,10 @@
         "t0": "2016-11-17 17:28:53",
         "t1": "2016-12-08 17:28:53"
       },
-      "latency_s": 0.248,
+      "latency_s": 0.752,
       "transport": "mcp",
       "digest": "5 cards on device in window",
-      "why": "Inspect other cards and closed cases associated with this shared device."
+      "why": "Check other cards sharing this device and any associated closed cases or fraud indicators."
     },
     {
       "step": 4,
@@ -318,26 +398,13 @@
         "device_id": "",
         "before_ts": "2016-12-01 17:28:53"
       },
-      "latency_s": 0.262,
+      "latency_s": 0.271,
       "transport": "mcp",
       "digest": "4 closed, 0 agent cases",
-      "why": "Review prior fraud cases on this card."
+      "why": "Check prior closed cases linked to this card to see if previous fraud was confirmed."
     },
     {
       "step": 5,
-      "tool": "card_window",
-      "args": {
-        "card_id": "C07987-K2",
-        "t0": "2016-11-28 17:28:53",
-        "t1": "2016-12-02 17:28:53"
-      },
-      "latency_s": 0.245,
-      "transport": "mcp",
-      "digest": "3 txns on C07987-K2",
-      "why": "Examine transaction patterns around the alert time."
-    },
-    {
-      "step": 6,
       "tool": "similar_cases_fp",
       "args": {
         "qv": [
@@ -360,13 +427,13 @@
         ],
         "k": 12
       },
-      "latency_s": 0.244,
+      "latency_s": 0.253,
       "transport": "mcp",
       "digest": "12 by fingerprint",
       "why": "closed episodes with the same behavioural shape"
     },
     {
-      "step": 6,
+      "step": 5,
       "tool": "similar_cases_text",
       "args": {
         "qv": [
@@ -757,13 +824,13 @@
         ],
         "k": 6
       },
-      "latency_s": 0.246,
+      "latency_s": 0.254,
       "transport": "mcp",
       "digest": "6 by narrative",
       "why": "closed cases with a similar narrative"
     },
     {
-      "step": 6,
+      "step": 5,
       "tool": "similar_agent_cases",
       "args": {
         "qv": [
@@ -786,13 +853,13 @@
         ],
         "k": 5
       },
-      "latency_s": 0.243,
+      "latency_s": 0.25,
       "transport": "mcp",
       "digest": "5 agent cases",
       "why": "the agent's own earlier cases with the same shape"
     },
     {
-      "step": 6,
+      "step": 5,
       "tool": "search_knowledge",
       "args": {
         "qv": [
@@ -1183,7 +1250,7 @@
         ],
         "k": 6
       },
-      "latency_s": 0.246,
+      "latency_s": 0.257,
       "transport": "mcp",
       "digest": "6 chunks",
       "why": "policy rules, typologies and regulatory guidance for this situation"
@@ -1233,10 +1300,10 @@
       "signal": "ring"
     },
     {
-      "claim": "On C07987-K2, the shared device made 1 purchase(s) totalling $99.92; average case-memory score 0.63",
-      "weight": 0.2,
+      "claim": "TigerGraph's Louvain community detection (GDBMS_ALGO) places this device profile in a community of 5 cardholders, 5 cards and 1 device profile(s); before this alert its cardholders produced 0 confirmed-fraud and 0 cleared closed cases (0.2x the bank-wide rate per cardholder)",
+      "weight": -0.3,
       "group": "network",
-      "signal": "connected_card"
+      "signal": "louvain_community"
     },
     {
       "claim": "The card has 3 earlier confirmed-fraud case(s) (most recent CC-5026, out_of_region_use), none involving this cardholder's transactions",
