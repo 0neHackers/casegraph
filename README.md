@@ -20,7 +20,7 @@
   <img alt="Gemini" src="https://img.shields.io/badge/LLM-Gemini%203.x%20Flash-4285F4?style=flat-square&logo=google&logoColor=white">
   <img alt="Python 3.10+" src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white">
   <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-green?style=flat-square">
-  <img alt="HH Goa 2026 Task 3" src="https://img.shields.io/badge/HH%20Goa%202026-Task%203-ff6b35?style=flat-square">
+  <img alt="HH Goa 2026 Task 4" src="https://img.shields.io/badge/HH%20Goa%202026-Task%204-ff6b35?style=flat-square">
 </p>
 
 <p align="center">
