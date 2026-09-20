@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/0neHackers.svg" alt="0neHackers" width="380">
+  <img src="docs/assets/0neHackers.svg" alt="0neHackers" width="230">
 </p>
 
 <p align="center">
