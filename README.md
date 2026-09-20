@@ -2,6 +2,10 @@
   <img src="docs/assets/0neHackers.svg" alt="0neHackers" width="380">
 </p>
 
+<p align="center">
+  <img src="docs/assets/casegraph.svg" alt="CaseGraph" width="460">
+</p>
+
 <h1 align="center">CaseGraph</h1>
 
 <p align="center">
@@ -16,7 +20,11 @@
   <img alt="Gemini" src="https://img.shields.io/badge/LLM-Gemini%203.x%20Flash-4285F4?style=flat-square&logo=google&logoColor=white">
   <img alt="Python 3.10+" src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white">
   <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-green?style=flat-square">
-  <img alt="HH Goa 2026" src="https://img.shields.io/badge/HH%20Goa%202026-TigerGraph-ff6b35?style=flat-square">
+  <img alt="HH Goa 2026 Task 3" src="https://img.shields.io/badge/HH%20Goa%202026-Task%203-ff6b35?style=flat-square">
+</p>
+
+<p align="center">
+  <img src="docs/assets/hhgoa26-task3.svg" alt="HH Goa 2026 · Task 3" width="300">
 </p>
 
 <p align="center">
@@ -253,5 +261,5 @@ For local development on Community Edition, see `scripts/ce/run_community_editio
 ---
 
 <p align="center">
-  <img src="docs/assets/madeby0nehackers.svg" alt="made by 0neHackers" width="260">
+  <img src="docs/assets/madeby0nehackers.svg" alt="Made by 0neHackers" width="300">
 </p>
