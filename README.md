@@ -24,7 +24,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/hhgoa26-task3.svg" alt="HH Goa 2026 · Task 3" width="300">
+  <a href="http://hhgoa.com/"><img src="docs/assets/hhgoa.svg" alt="Hacker House Goa 2026" width="150"></a>
 </p>
 
 <p align="center">

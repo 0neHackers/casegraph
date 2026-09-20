@@ -1,4 +1,4 @@
-"""Generate the CaseGraph wordmark and the HH Goa task badge as dot-matrix SVGs,
+"""Generate the CaseGraph wordmark as a dot-matrix SVG,
 in the same visual language as the 0neHackers logo (blue + green dot matrix).
 
     python scripts/make_logos.py
@@ -59,16 +59,6 @@ def casegraph() -> str:
             f'<g>{icon}</g>\n{case}\n{graph}\n</svg>\n')
 
 
-def badge() -> str:
-    hh, x = dots("HHGOA26", 20, 20, "#FF6B35")
-    sep, x = dots("·", x - 18, 20, "#6B6B75")
-    t3, x = dots("TASK 3", x, 20, "#6B6B75")
-    w = x - STEP + 20
-    return (f'<svg width="{w:.0f}" height="148" viewBox="0 0 {w:.0f} 148" fill="none" xmlns="http://www.w3.org/2000/svg">\n'
-            f'{hh}\n{sep}\n{t3}\n</svg>\n')
-
-
 if __name__ == "__main__":
     (OUT / "casegraph.svg").write_text(casegraph())
-    (OUT / "hhgoa26-task3.svg").write_text(badge())
-    print("wrote", OUT / "casegraph.svg", OUT / "hhgoa26-task3.svg")
+    print("wrote", OUT / "casegraph.svg")
